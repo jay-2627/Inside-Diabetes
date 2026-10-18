@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside Diabetes — Cinematic Biological Exploration &amp; AI Prediction Platform</title>
+  <meta name="description" content="A cinematic, scroll-driven medical documentary and explainable AI diabetes risk prediction platform using Artificial Neural Networks and Three.js 3D biology.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Film Grain Overlay for Cinematic Documentary Atmosphere -->
+  <div class="film-grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- FIXED 3D WEBGL CANVAS BACKGROUND -->
+  <canvas id="webgl-canvas" aria-label="3D Anatomical and Biological Visualization"></canvas>
+
+  <!-- 3D BIOLOGICAL OBJECT HOVER / TAP TOOLTIP (Minimal, concise explanations) -->
+  <div id="bioTooltip" class="bio-tooltip" aria-hidden="true">
+    <div class="bt-header">
+      <span class="bt-dot"></span>
+      <strong id="btName">Biological Structure</strong>
+    </div>
+    <p id="btDesc">Hover or tap on any anatomical or cellular structure to reveal its biological function.</p>
+    <div class="bt-cue">TAP / HOVER OBJECT</div>
+  </div>
+
+  <!-- MEDICAL TELEMETRY HUD -->
+  <div class="telemetry-hud" id="telemetryHud" aria-hidden="true">
+    <div class="hud-item">
+      <span class="hud-label">DEPTH / SCALE</span>
+      <span class="hud-val" id="hudScale">1.0× (MACRO ANATOMY)</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">BIOLOGICAL COMPARTMENT</span>
+      <span class="hud-val" id="hudLocation">HUMAN VASCULAR SYSTEM</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">PREDICTION RISK STATUS</span>
+      <span class="hud-val hud-status-normal" id="hudTone">BASELINE (E[Y] = 35.5%)</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">DOCUMENTARY PHASE</span>
+      <span class="hud-val" id="hudChapter">PROLOGUE</span>
+    </div>
+  </div>
+
+  <!-- TOP NAVIGATION -->
+  <nav id="navbar" role="navigation" aria-label="Main documentary navigation">
+    <div class="nav-brand">
+      <div class="brand-symbol"></div>
+      <span class="brand-text">INSIDE DIABETES</span>
+      <span class="brand-badge">ANN &amp; XAI</span>
+    </div>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#hero" class="active">Overview</a></li>
+      <li><a href="#bloodstream">Bloodstream</a></li>
+      <li><a href="#pancreas">Pancreas</a></li>
+      <li><a href="#insulin">Insulin Action</a></li>
+      <li><a href="#pathology">Pathology</a></li>
+      <li><a href="#prediction-portal" class="nav-highlight">Risk Predictor</a></li>
+      <li><a href="#ai-research">ANN Architecture</a></li>
+      <li><a href="#awareness">Clinical Context</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <a href="#prediction-portal" class="nav-btn-predict">Calculate Risk</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       HERO: HUMAN ANATOMY & INTRODUCTION
+  ═════════════════════════════════════════════════════════════════ -->
+  <section id="hero" class="doc-hero" data-scale="1.0× (MACRO ANATOMY)" data-loc="HUMAN VASCULAR SYSTEM" data-phase="PROLOGUE">
+    <div class="hero-split-container">
+      <div class="hero-content-left">
+        <div class="hero-meta">
+          <span class="meta-tag">SCIENTIFIC EXPLORATION</span>
+          <span class="meta-divider">•</span>
+          <span class="meta-tag">EXPLAINABLE ARTIFICIAL INTELLIGENCE</span>
+        </div>
+
+        <h1 class="hero-title">
+          <span class="title-sub">JOURNEY INTO THE</span>
+          <span class="title-main">HUMAN BODY</span>
+        </h1>
+
+        <p class="hero-lead">
+          A scroll-driven medical documentary into endocrine biology, glucose regulation, 
+          and neural network prediction — featuring interactive 3D anatomical exploration.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#bloodstream" class="btn-primary" id="btnStartJourney">
+            <span>BEGIN 3D EXPLORATION</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M12 6v12"/></svg>
+          </a>
+          <div class="scroll-indicator">
+            <div class="mouse-wheel"></div>
+            <span>SCROLL TO DIVE IN</span>
+          </div>
+        </div>
+
+        <div class="hero-explore-hint">
+          <span class="heh-icon">💡</span>
+          <span>Hover or tap directly on any 3D organ, blood cell, or receptor for concise scientific details.</span>
+        </div>
+      </div>
+
+      <!-- Right Column: Dedicated 3D Anatomical Stage (Zero Text Overlap) -->
+      <div class="hero-3d-stage" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       CHAPTER I: BLOODSTREAM (MINIMAL STREAMLINED OVERLAY)
+  ═════════════════════════════════════════════════════════════════ -->
+  <section id="bloodstream" class="doc-chapter minimal-chapter" data-scale="500× (VASCULAR LUMEN)" data-loc="CAPILLARY ARTERY" data-phase="CHAPTER I">
+    <div class="chapter-container">
+      <div class="chapter-header-compact">
+        <span class="chapter-num">CHAPTER 01</span>
+        <h2 class="chapter-title">Inside the Bloodstream</h2>
+        <p class="chapter-subtitle">Erythrocytes in laminar flow, marginated leukocytes, and circulating D-glucose molecules.</p>
+      </div>
+
+      <!-- Minimal Floating Dock (Leaves 3D center unblocked) -->
+      <div class="floating-dock-bottom">
+        <div class="fdb-content">
+          <div class="fdb-indicator">
+            <span class="pulse-indicator"></span>
+            <strong>3D Vascular Lumen:</strong> Tap any erythrocyte, leukocyte, or glucose ring to inspect.
+          </div>
+          <div class="fdb-legend">
+            <span class="fl-item"><span class="fl-dot fl-rbc"></span> Erythrocytes (RBC)</span>
+            <span class="fl-item"><span class="fl-dot fl-wbc"></span> Leukocytes (WBC)</span>
+            <span class="fl-item"><span class="fl-dot fl-glucose"></span> D-Glucose</span>
+          </div>
+          <div class="fdb-metrics">
+            <div class="fdb-item">
+              <span class="fi-label">ERYTHROCYTE PROFILE</span>
+              <span class="fi-val">Biconcave Disc (7.8 µm)</span>
+            </div>
+            <div class="fdb-item">
+              <span class="fi-label">LEUKOCYTE SENTINELS</span>
+              <span class="fi-val">Neutrophils (~14 µm)</span>
+            </div>
+            <div class="fdb-item">
+              <span class="fi-label">GLUCOSE DENSITY</span>
+              <span class="fi-val" id="streamGlucVal">Linked to Model Input (100 mg/dL)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       CHAPTER II: PANCREAS & ISLETS (MINIMAL STREAMLINED OVERLAY)
+  ═════════════════════════════════════════════════════════════════ -->
+  <section id="pancreas" class="doc-chapter minimal-chapter" data-scale="200× → 1,200×" data-loc="RETROPERITONEUM / ISLET" data-phase="CHAPTER II">
+    <div class="chapter-container">
+      <div class="chapter-header-compact">
+        <span class="chapter-num">CHAPTER 02</span>
+        <h2 class="chapter-title">The Pancreas &amp; Endocrine Islets</h2>
+        <p class="chapter-subtitle">Anatomical organ structure and microscopic Islets of Langerhans.</p>
+      </div>
+
+      <!-- Minimal Floating Dock -->
+      <div class="floating-dock-bottom">
+        <div class="fdb-content">
+          <div class="fdb-indicator">
+            <span class="pulse-indicator pulse-green"></span>
+            <strong>Endocrine Micro-Architecture:</strong> Hover over the Pancreas, Splenic Artery, or Islet Beta/Alpha cells.
+          </div>
+          <div class="fdb-metrics">
+            <div class="fdb-item">
+              <span class="fi-label">ORGAN PARTS</span>
+              <span class="fi-val">Head, Body, Tail, Duct</span>
+            </div>
+            <div class="fdb-item">
+              <span class="fi-label">ACTIVE SECRETION</span>
+              <span class="fi-val">Beta-Cell Insulin Exocytosis</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       CHAPTER III: INSULIN SIGNALLING (MINIMAL STREAMLINED OVERLAY)
+  ═════════════════════════════════════════════════════════════════ -->
+  <section id="insulin" class="doc-chapter minimal-chapter" data-scale="50,000× (CELL MEMBRANE)" data-loc="MYOCYTE MEMBRANE" data-phase="CHAPTER III">
+    <div class="chapter-container">
+      <div class="chapter-header-compact">
+        <span class="chapter-num">CHAPTER 03</span>
+        <h2 class="chapter-title">Cellular Insulin Action</h2>
+        <p class="chapter-subtitle">Lipid bilayer, Tyrosine Kinase Receptor, and GLUT4 transport pore.</p>
+      </div>
+
+      <!-- Minimal Floating Dock -->
+      <div class="floating-dock-bottom">
+        <div class="fdb-content">
+          <div class="fdb-indicator">
+            <span class="pulse-indicator pulse-cyan"></span>
+            <strong>Molecular Translocation:</strong> Hover over the Insulin Receptor, Lipid Heads, or GLUT4 Channel.
+          </div>
+          <div class="fdb-metrics">
+            <div class="fdb-item">
+              <span class="fi-label">CASCADE STAGE</span>
+              <span class="fi-val">IRS-1 / Akt Phosphorylation</span>
+            </div>
+            <div class="fdb-item">
+              <span class="fi-label">MEMBRANE INFLUX</span>
+              <span class="fi-val">GLUT4 Facilitated Diffusion</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       CHAPTER IV: PATHOLOGY COMPARISON
+  ═════════════════════════════════════════════════════════════ -->
+  <section id="pathology" class="doc-chapter" data-scale="SYSTEMIC PATHOLOGY" data-loc="PATHOLOGICAL STATES" data-phase="CHAPTER IV">
+    <div class="chapter-container">
+      <div class="chapter-header">
+        <span class="chapter-num">CHAPTER 04</span>
+        <h2 class="chapter-title">Distinct Biological Pathways</h2>
+        <p class="chapter-subtitle">Normal Homeostasis vs. Type 1 Autoimmunity vs. Type 2 Resistance</p>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="pathology-mode-selector">
+        <button class="mode-btn active" data-mode="normal">
+          <span class="mb-indicator normal-ind"></span>
+          <span class="mb-title">Normal Physiology</span>
+          <span class="mb-desc">Intact Feedback Loop</span>
+        </button>
+        <button class="mode-btn" data-mode="type1">
+          <span class="mb-indicator type1-ind"></span>
+          <span class="mb-title">Type 1 Diabetes</span>
+          <span class="mb-desc">Autoimmune Beta-Cell Loss</span>
+        </button>
+        <button class="mode-btn" data-mode="type2">
+          <span class="mb-indicator type2-ind"></span>
+          <span class="mb-title">Type 2 Diabetes</span>
+          <span class="mb-desc">Insulin Resistance &amp; Strain</span>
+        </button>
+      </div>
+
+      <!-- Concise Pathological Comparison Grid -->
+      <div class="pathology-display-grid">
+        <div class="story-card" id="pathologyCard">
+          <h3 class="story-heading" id="pathologyTitle">Normal Glucose Homeostasis</h3>
+          <div class="path-details">
+            <div class="pd-row">
+              <span class="pd-key">Primary Biological Mechanism:</span>
+              <span class="pd-val" id="pathDefect">Intact neuro-endocrine sensing, pulsatile insulin exocytosis, and rapid peripheral GLUT4 translocation.</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-key">Beta-Cell Status:</span>
+              <span class="pd-val" id="pathBeta">Viable islet mass (~10<sup>9</sup> beta cells) with responsive postprandial release within 5–10 minutes.</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-key">Systemic Trajectory:</span>
+              <span class="pd-val" id="pathProfile">Fasting: 70–99 mg/dL. Postprandial peak &lt; 140 mg/dL, returning to baseline within 2 hours.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="interactive-panel">
+          <div class="ip-header">
+            <span class="ip-title">2-HOUR ORAL GLUCOSE TOLERANCE CURVE</span>
+            <span class="ip-status" id="curveStatus">NORMAL RESPONSE</span>
+          </div>
+          <div class="ogtt-chart-wrapper">
+            <canvas id="ogttCanvas" width="460" height="180" aria-label="OGTT glucose response curves"></canvas>
+          </div>
+          <div class="curve-legend">
+            <span class="cl-tag cl-norm">Normal (&lt;140 mg/dL)</span>
+            <span class="cl-tag cl-t1">Type 1 (Unchecked &gt;200)</span>
+            <span class="cl-tag cl-t2">Type 2 (Prolonged Elevation)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       CHAPTER V: DEDICATED DIABETES PREDICTION PLATFORM
+  ═════════════════════════════════════════════════════════════ -->
+  <section id="prediction-portal" class="doc-chapter prediction-section" data-scale="CLINICAL MODEL SPACE" data-loc="PREDICTION PLATFORM" data-phase="DIABETES PREDICTION">
+    <div class="chapter-container">
+      <div class="chapter-header">
+        <span class="chapter-num">PREDICTION PLATFORM</span>
+        <h2 class="chapter-title">Interactive Risk Prediction &amp; XAI</h2>
+        <p class="chapter-subtitle">
+          Powered by our trained Artificial Neural Network (MLP) on the Pima Indians clinical dataset. 
+          Adjust values to observe real-time model calculations, SHAP feature attributions, and connected 3D visualizations.
+        </p>
+      </div>
+
+      <!-- Presets Toolbar -->
+      <div class="presets-toolbar">
+        <span class="pt-label">LOAD CLINICAL PRESET:</span>
+        <button class="preset-btn" data-preset="healthy">Healthy Baseline</button>
+        <button class="preset-btn" data-preset="borderline">Borderline Prediabetes</button>
+        <button class="preset-btn" data-preset="highrisk">Elevated Metabolic Risk</button>
+        <button class="preset-btn" data-preset="median">Dataset Medians</button>
+      </div>
+
+      <div class="prediction-main-layout">
+        <!-- 8-Feature Prediction Input Form -->
+        <div class="prediction-form-card">
+          <div class="pfc-header">
+            <h3>Clinical Biomarker Inputs (Pima NIDDK Features)</h3>
+            <span class="pfc-sub">Validated against physiological ranges</span>
+          </div>
+
+          <form id="predictionForm" class="pima-form" novalidate>
+            <div class="form-grid">
+              
+              <!-- 1. Glucose -->
+              <div class="form-field highlight-field">
+                <div class="field-label-row">
+                  <label for="inputGlucose">Plasma Glucose (2-hr OGTT)</label>
+                  <span class="field-unit">mg/dL</span>
+                </div>
+                <div class="field-input-row">
+                  <input type="number" id="inputGlucose" name="Glucose" min="40" max="300" step="1" value="100" required>
+                  <span class="field-range">40–300</span>
+                </div>
+                <span class="field-hint">Primary driver of model prediction &amp; 3D bloodstream visual.</span>
+              </div>
+
+              <!-- 2. BMI -->
+              <div class="form-field highlight-field">
+                <div class="field-label-row">
+                  <label for="inputBmi">Body Mass Index (BMI)</label>
+                  <span class="field-unit">kg/m²</span>
+                </div>
+                <div class="field-input-row">
+                  <input type="number" id="inputBmi" name="BMI" min="12" max="67" step="0.1" value="26.5" required>
+                  <span class="field-range">12–67</span>
+                </div>
+                <span class="field-hint">Key metabolic indicator of adiposity.</span>
+              </div>
+
+              <!-- 3. Age -->
+              <div class="form-field">
+                <div class="field-label-row">
+                  <label for="inputAge">Patient Age</label>
+                  <span class="field-unit">years</span>
+                </div>
+                <div class="field-input-row">
+                  <input type="number" id="inputAge" name="Age" min="18" max="100" step="1" value="33" required>
+                  <span class="field-range">18–100</span>
+                </div>
+              </div>
+
+              <!-- 4. Serum Insulin -->
+              <div class="form-field">
+                <div class="field-label-row">
+                  <label for="inputInsulin">Serum Insulin (2-hr)</label>
+                  <span class="field-unit">µU/mL</span>
+                </div>
+                <div class="field-input-row">
+                  <input type="number" id="inputInsulin" name="Insulin" min="10" max="850" step="1" value="85" required>
+                  <span class="field-range">10–850</span>
+                </div>
+              </div>
+
+              <!-- 5. Blood Pressure -->
+              <div class="form-field">
+                <div class="field-label-row">
+                  <label for="inputBp">Blood Pressure (Diastolic)</label>
+                  <span class="field-unit">mm Hg</span>
+                </div>
+                <div class="field-input-row">
+                  <input type="number" id="inputBp" name="BloodPressure" min="30" max="180" step="1" value="72" required>
+                  <span class="field-range">30–180</span>
+                </div>
+              </div>
+
+              <!-- 6. Skin Thickness -->
+              <div class="form-field">
+                <div class="field-label-row">
+                  <label for="inputSkin">Triceps Skin Thickness</label>
+                  <span class="field-unit">mm</span>
+                </div>
+                <div class="field-input-row">
+                  <input type="number" id="inputSkin" name="SkinThickness" min="5" max="99" step="1" value="23" required>
+                  <span class="field-range">5–99</span>
+                </div>
+              </div>
+
+              <!-- 7. Pregnancies -->
+              <div class="form-field">
+                <div class="field-label-row">
+                  <label for="inputPreg">Pregnancies</label>
+                  <span class="field-unit">count</span>
+                </div>
+                <div class="field-input-row">
+                  <input type="number" id="inputPreg" name="Pregnancies" min="0" max="20" step="1" value="1" required>
+                  <span class="field-range">0–20</span>
+                </div>
+              </div>
+
+              <!-- 8. Diabetes Pedigree Function -->
+              <div class="form-field">
+                <div class="field-label-row">
+                  <label for="inputPedigree">Pedigree Function (Genetic)</label>
+                  <span class="field-unit">score</span>
+                </div>
+                <div class="field-input-row">
+                  <input type="number" id="inputPedigree" name="DiabetesPedigreeFunction" min="0.05" max="2.50" step="0.01" value="0.38" required>
+                  <span class="field-range">0.05–2.50</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Form Action Buttons -->
+            <div class="form-actions">
+              <button type="submit" class="btn-calculate" id="btnCalculate">
+                <span>RECALCULATE PREDICTION &amp; SHAP</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+              <button type="button" class="btn-reset" id="btnResetForm">Reset to Defaults</button>
+            </div>
+          </form>
+
+          <!-- Input Connection Notice -->
+          <div class="connection-notice">
+            <span class="cn-icon">🔗</span>
+            <div class="cn-text">
+              <strong>Connected 3D Biological Response:</strong>
+              Modifying Glucose above adjusts 3D bloodstream molecular density in real time. Model prediction updates synapsing frequencies across the 3D neural network.
+            </div>
+          </div>
+        </div>
+
+        <!-- Prediction Result & Explainable AI (SHAP) Card -->
+        <div class="prediction-results-card">
+          <div class="prc-header">
+            <h3>Neural Network Prediction Output</h3>
+            <span class="badge-genuine">AUTHENTIC ANN INFERENCE</span>
+          </div>
+
+          <!-- Probability Gauge -->
+          <div class="risk-gauge-panel">
+            <div class="rg-top">
+              <span class="rg-title">CALCULATED DIABETES RISK PROBABILITY</span>
+              <strong class="rg-score" id="riskScoreDisplay">24.2%</strong>
+            </div>
+            <div class="rg-track">
+              <div class="rg-fill" id="riskGaugeFill" style="width: 24.2%; background: #10b981;"></div>
+            </div>
+            <div class="rg-labels">
+              <span>0% Low Risk</span>
+              <span class="rg-center-marker">Baseline (35.5%)</span>
+              <span>100% High Risk</span>
+            </div>
+            <div class="rg-classification" id="riskClassBadge">
+              <span class="badge-dot"></span>
+              <strong id="riskClassText">LOW ESTIMATED RISK</strong>
+              <span id="riskSubText">(Below population baseline)</span>
+            </div>
+          </div>
+
+          <!-- SHAP Feature Attribution Waterfall -->
+          <div class="shap-section">
+            <div class="shap-title-row">
+              <h4>SHAP Feature Attribution ($\phi_i$)</h4>
+              <span class="shap-subtitle">Local game-theoretic contribution to this prediction</span>
+            </div>
+
+            <div class="shap-bars-container" id="shapBarsList">
+              <!-- Dynamically populated via script from real model weights -->
+            </div>
+
+            <div class="shap-footer-explanation">
+              <p>
+                <strong>Statistical Attribution vs Biological Causality:</strong>
+                Features with positive values (<span class="val-pos">+</span>) pushed the model's risk score above the population baseline ($E[Y] = 35.5\%$), 
+                while negative values (<span class="val-neg">−</span>) pulled it lower. 
+                Attribution reflects patterns learned from the Pima dataset and should not be confused with personal medical causation.
+              </p>
+            </div>
+          </div>
+
+          <!-- Mandatory Educational Disclaimer -->
+          <div class="educational-disclaimer-box">
+            <div class="ed-icon">⚕️</div>
+            <div class="ed-content">
+              <strong>Educational Research Prototype — Not a Medical Diagnosis</strong>
+              <p>
+                This prediction is produced by a feedforward Artificial Neural Network for computer science and biomedical research. 
+                It is <strong>not</strong> medical advice or a diagnostic assessment. The 3D animations are illustrative educational models 
+                and do not represent an individual's actual internal organs or cellular pathology.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       CHAPTER VI: ANN ARCHITECTURE & TRAINING METRICS
+  ═════════════════════════════════════════════════════════════ -->
+  <section id="ai-research" class="doc-chapter" data-scale="IN SILICO NEURAL SPACE" data-loc="ANN ARCHITECTURE" data-phase="CHAPTER VI">
+    <div class="chapter-container">
+      <div class="chapter-header">
+        <span class="chapter-num">CHAPTER 06</span>
+        <h2 class="chapter-title">Artificial Neural Network Architecture</h2>
+        <p class="chapter-subtitle">Feedforward Multilayer Perceptron trained and evaluated on 768 clinical records.</p>
+      </div>
+
+      <div class="doc-story-grid">
+        <div class="story-card">
+          <h3 class="story-heading">Genuine Test Performance (N=154 Held-Out Records)</h3>
+          
+          <div class="metrics-kpi-grid">
+            <div class="kpi-card">
+              <span class="kpi-val" id="metricAuc">0.809</span>
+              <span class="kpi-label">ROC-AUC SCORE</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-val" id="metricAcc">69.5%</span>
+              <span class="kpi-label">ACCURACY</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-val" id="metricF1">0.561</span>
+              <span class="kpi-label">F1-SCORE</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-val" id="metricBase">35.5%</span>
+              <span class="kpi-label">TRAIN BASELINE E[Y]</span>
+            </div>
+          </div>
+
+          <div class="ann-specs-list">
+            <div class="as-item">
+              <span class="as-key">Network Topology:</span>
+              <span class="as-val">8 Inputs &rarr; 16 Neurons (ReLU) &rarr; 8 Neurons (ReLU) &rarr; 1 Sigmoid Output</span>
+            </div>
+            <div class="as-item">
+              <span class="as-key">Data Imputation &amp; Scaling:</span>
+              <span class="as-val">Stratified 80/20 split; missing zeros imputed via training medians; Z-score standardization</span>
+            </div>
+            <div class="as-item">
+              <span class="as-key">Training Optimization:</span>
+              <span class="as-val">Adam optimizer, early stopping on validation loss, L2 regularization (&alpha; = 0.001)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="interactive-panel">
+          <div class="ip-header">
+            <span class="ip-title">GLOBAL FEATURE SENSITIVITY (TRAINING SET)</span>
+            <span class="ip-status">MODEL WEIGHT ANALYSIS</span>
+          </div>
+
+          <div class="global-importance-list" id="globalImportanceList">
+            <!-- Populated via script from model_weights.json -->
+          </div>
+
+          <p class="shap-note">
+            Sensitivity computed by finite-difference gradient estimation over the standardized feature manifold.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       CHAPTER VII: CLINICAL CONTEXT & GUIDELINES
+  ═════════════════════════════════════════════════════════════ -->
+  <section id="awareness" class="doc-chapter" data-scale="PUBLIC HEALTH" data-loc="CLINICAL GUIDELINES" data-phase="CHAPTER VII">
+    <div class="chapter-container">
+      <div class="chapter-header">
+        <span class="chapter-num">CHAPTER 07</span>
+        <h2 class="chapter-title">Clinical Reference &amp; Guidelines</h2>
+        <p class="chapter-subtitle">Standard American Diabetes Association (ADA) diagnostic thresholds.</p>
+      </div>
+
+      <div class="clinical-reference-table-wrap">
+        <table class="clinical-table">
+          <thead>
+            <tr>
+              <th>Diagnostic Biomarker</th>
+              <th>Normal</th>
+              <th>Prediabetes</th>
+              <th>Diabetes Mellitus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Fasting Plasma Glucose (FPG)</strong></td>
+              <td>&lt; 100 mg/dL (&lt; 5.6 mmol/L)</td>
+              <td>100–125 mg/dL (5.6–6.9 mmol/L)</td>
+              <td>&ge; 126 mg/dL (&ge; 7.0 mmol/L)</td>
+            </tr>
+            <tr>
+              <td><strong>Glycated Haemoglobin (HbA1c)</strong></td>
+              <td>&lt; 5.7% (&lt; 39 mmol/mol)</td>
+              <td>5.7%–6.4% (39–47 mmol/mol)</td>
+              <td>&ge; 6.5% (&ge; 48 mmol/mol)</td>
+            </tr>
+            <tr>
+              <td><strong>2-hr Oral Glucose Tolerance (OGTT)</strong></td>
+              <td>&lt; 140 mg/dL (&lt; 7.8 mmol/L)</td>
+              <td>140–199 mg/dL (7.8–11.0 mmol/L)</td>
+              <td>&ge; 200 mg/dL (&ge; 11.1 mmol/L)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer Disclaimer -->
+      <footer class="doc-footer">
+        <div class="footer-left">
+          <strong>INSIDE DIABETES</strong>
+          <p>College Research Project • Explainable AI-Based Diabetes Risk Prediction</p>
+        </div>
+        <div class="footer-right">
+          <p>Trained Artificial Neural Network (MLP) • Three.js WebGL • GSAP ScrollTrigger</p>
+          <p class="copyright">Educational Research Prototype. Not a medical device.</p>
+        </div>
+      </footer>
+    </div>
+  </section>
+
+  <!-- LOCAL LIBRARIES -->
+  <script src="lib/three.min.js"></script>
+  <script src="lib/gsap.min.js"></script>
+  <script src="lib/ScrollTrigger.min.js"></script>
+
+  <!-- MAIN DOCUMENTARY SCRIPT -->
+  <script src="script.js"></script>
+</body>
+</html>
