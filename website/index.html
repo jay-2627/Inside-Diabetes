@@ -304,220 +304,580 @@
        CHAPTER V: DEDICATED DIABETES PREDICTION PLATFORM
   ═════════════════════════════════════════════════════════════ -->
   <section id="prediction-portal" class="doc-chapter prediction-section" data-scale="CLINICAL MODEL SPACE" data-loc="PREDICTION PLATFORM" data-phase="DIABETES PREDICTION">
-    <div class="chapter-container">
-      <div class="chapter-header">
-        <span class="chapter-num">PREDICTION PLATFORM</span>
-        <h2 class="chapter-title">Interactive Risk Prediction &amp; XAI</h2>
-        <p class="chapter-subtitle">
+    <div class="chapter-container pred-full-width">
+      
+      <!-- Top Section Header -->
+      <div class="pred-header-block">
+        <span class="pred-kicker">PREDICTION PLATFORM</span>
+        <h2 class="pred-headline">INTERACTIVE RISK PREDICTION<br>&amp; XAI</h2>
+        <p class="pred-lead">
           Powered by our trained Artificial Neural Network (MLP) on the Pima Indians clinical dataset. 
-          Adjust values to observe real-time model calculations, SHAP feature attributions, and connected 3D visualizations.
+          Adjust values to see how your health metrics affect the prediction, with SHAP feature explanations and 3D anatomical visualizations.
         </p>
+
+        <!-- Navigation Tabs Bar -->
+        <div class="pred-tabs-nav" role="tablist">
+          <button class="pred-tab-pill" type="button" data-tab="input">Input</button>
+          <button class="pred-tab-pill active" type="button" data-tab="results">🎛 Results</button>
+          <button class="pred-tab-pill" type="button" data-tab="feature-impact">Feature Impact</button>
+          <button class="pred-tab-pill" type="button" data-tab="shap">SHAP Explanation</button>
+          <button class="pred-tab-pill" type="button" data-tab="counterfactual">🔀 Counterfactual Explorer</button>
+          <button class="pred-tab-pill" type="button" data-tab="3d">3D Anatomy</button>
+        </div>
       </div>
 
-      <!-- Presets Toolbar -->
-      <div class="presets-toolbar">
-        <span class="pt-label">LOAD CLINICAL PRESET:</span>
+      <!-- Presets Toolbar (Embedded Elegantly) -->
+      <div class="presets-toolbar-sleek">
+        <span class="pt-label">QUICK CLINICAL PRESETS:</span>
         <button class="preset-btn" data-preset="healthy">Healthy Baseline</button>
         <button class="preset-btn" data-preset="borderline">Borderline Prediabetes</button>
         <button class="preset-btn" data-preset="highrisk">Elevated Metabolic Risk</button>
         <button class="preset-btn" data-preset="median">Dataset Medians</button>
       </div>
 
-      <div class="prediction-main-layout">
-        <!-- 8-Feature Prediction Input Form -->
-        <div class="prediction-form-card">
-          <div class="pfc-header">
-            <h3>Clinical Biomarker Inputs (Pima NIDDK Features)</h3>
-            <span class="pfc-sub">Validated against physiological ranges</span>
+      <!-- ═════════════════════════════════════════════════════════════
+           3-COLUMN PREDICTION DASHBOARD GRID
+      ═════════════════════════════════════════════════════════════════ -->
+      <div class="pred-dashboard-grid">
+
+        <!-- ───────────────────────────────────────────────────────────
+             COLUMN 1: HUMAN RESULT
+        ──────────────────────────────────────────────────────────── -->
+        <aside class="pred-col pred-col-human">
+          <div class="hud-card human-result-card">
+            
+            <div class="hud-card-header">
+              <div class="hud-title-with-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <h3>HUMAN RESULT</h3>
+              </div>
+              <span class="hud-badge-cyan">Live Analysis</span>
+            </div>
+
+            <!-- Isolated Holographic Human Body (Transparent, No Circle, No Floating Text) -->
+            <div class="hologram-stage">
+              <img id="riskSilhouette" src="assets/pure_human_hologram.png" alt="Holographic Human Anatomical Visualization" class="hologram-human-img">
+              <div class="hologram-scan-line"></div>
+            </div>
+
+            <!-- Circular Gauge Score Section -->
+            <div class="human-gauge-row">
+              <div class="circular-gauge-box">
+                <svg class="circular-gauge-svg" viewBox="0 0 100 100">
+                  <circle class="gauge-bg" cx="50" cy="50" r="42"></circle>
+                  <circle class="gauge-progress" id="gaugeProgressCircle" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="100"></circle>
+                </svg>
+                <div class="gauge-center-val">
+                  <strong id="riskScoreDisplay">62%</strong>
+                </div>
+              </div>
+              <div class="gauge-meta-col">
+                <span class="gm-label">Diabetes Risk</span>
+                <strong class="gm-status" id="riskClassText">Moderate</strong>
+              </div>
+            </div>
+
+            <!-- Uncertainty Alert Box -->
+            <div class="hud-alert-box alert-warning">
+              <div class="hab-icon">⚠️</div>
+              <div class="hab-body">
+                <strong id="uncertaintyLevelText">Uncertainty Level: Moderate</strong>
+                <p id="riskSubText">Prediction has moderate variance across ensemble trees. Consider further clinical evaluation.</p>
+              </div>
+            </div>
+
+            <!-- Model Confidence Bar -->
+            <div class="confidence-box">
+              <div class="conf-header">
+                <span>Model Confidence</span>
+                <strong id="modelConfidenceText">78%</strong>
+              </div>
+              <div class="conf-bar-track">
+                <div class="conf-bar-fill" id="modelConfidenceFill" style="width: 78%;"></div>
+              </div>
+            </div>
+
+            <!-- Metadata List -->
+            <div class="human-meta-list">
+              <div class="hml-row">
+                <span class="hml-dot"></span>
+                <span class="hml-key">Prediction Type:</span>
+                <strong class="hml-val">Risk Probability</strong>
+              </div>
+              <div class="hml-row">
+                <span class="hml-dot"></span>
+                <span class="hml-key">Model Used:</span>
+                <strong class="hml-val" id="activeModelLabel">XGBoost (Best Performing)</strong>
+              </div>
+            </div>
+
+            <!-- Medical Disclaimer -->
+            <div class="human-card-footer">
+              <small>This prediction is for educational research purposes only. Not a medical diagnosis.</small>
+            </div>
+
+          </div>
+        </aside>
+
+        <!-- ───────────────────────────────────────────────────────────
+             COLUMN 2: CLINICAL BIOMARKER INPUTS (PIMA NIDDK FEATURES)
+        ──────────────────────────────────────────────────────────── -->
+        <main class="pred-col pred-col-inputs">
+          <div class="hud-card inputs-card">
+            
+            <div class="hud-card-header">
+              <div class="hud-title-with-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/></svg>
+                <h3>CLINICAL BIOMARKER INPUTS (PIMA NIDDK FEATURES)</h3>
+              </div>
+              <span class="hud-sub-label">All values are in standard units</span>
+            </div>
+
+            <form id="predictionForm" class="hud-biomarker-form" novalidate>
+              <div class="biomarker-tiles-grid">
+                
+                <!-- 1. Glucose -->
+                <div class="biomarker-tile">
+                  <div class="bt-top">
+                    <span class="bt-icon">💧</span>
+                    <label for="inputGlucose" class="bt-label">Plasma Glucose (mg/dL)</label>
+                    <span class="bt-range">[40 - 300]</span>
+                  </div>
+                  <input type="number" id="inputGlucose" name="Glucose" min="40" max="300" step="1" value="138" class="bt-input" required>
+                </div>
+
+                <!-- 2. BMI -->
+                <div class="biomarker-tile">
+                  <div class="bt-top">
+                    <span class="bt-icon">⚖️</span>
+                    <label for="inputBmi" class="bt-label">Body Mass Index (BMI)</label>
+                    <span class="bt-range">[12.0 - 67.1]</span>
+                  </div>
+                  <input type="number" id="inputBmi" name="BMI" min="12" max="67.1" step="0.1" value="28.5" class="bt-input" required>
+                </div>
+
+                <!-- 3. Age -->
+                <div class="biomarker-tile">
+                  <div class="bt-top">
+                    <span class="bt-icon">👤</span>
+                    <label for="inputAge" class="bt-label">Age (years)</label>
+                    <span class="bt-range">[21 - 81]</span>
+                  </div>
+                  <input type="number" id="inputAge" name="Age" min="21" max="100" step="1" value="45" class="bt-input" required>
+                </div>
+
+                <!-- 4. Pregnancies -->
+                <div class="biomarker-tile">
+                  <div class="bt-top">
+                    <span class="bt-icon">🤰</span>
+                    <label for="inputPreg" class="bt-label">Pregnancies</label>
+                    <span class="bt-range">[0 - 17]</span>
+                  </div>
+                  <input type="number" id="inputPreg" name="Pregnancies" min="0" max="20" step="1" value="2" class="bt-input" required>
+                </div>
+
+                <!-- 5. Blood Pressure -->
+                <div class="biomarker-tile">
+                  <div class="bt-top">
+                    <span class="bt-icon">⏱️</span>
+                    <label for="inputBp" class="bt-label">Blood Pressure (mmHg)</label>
+                    <span class="bt-range">[30 - 122]</span>
+                  </div>
+                  <input type="number" id="inputBp" name="BloodPressure" min="30" max="180" step="1" value="72" class="bt-input" required>
+                </div>
+
+                <!-- 6. Skin Thickness -->
+                <div class="biomarker-tile">
+                  <div class="bt-top">
+                    <span class="bt-icon">📐</span>
+                    <label for="inputSkin" class="bt-label">Skin Thickness (mm)</label>
+                    <span class="bt-range">[5 - 99]</span>
+                  </div>
+                  <input type="number" id="inputSkin" name="SkinThickness" min="5" max="99" step="1" value="22" class="bt-input" required>
+                </div>
+
+                <!-- 7. Insulin -->
+                <div class="biomarker-tile">
+                  <div class="bt-top">
+                    <span class="bt-icon">💉</span>
+                    <label for="inputInsulin" class="bt-label">Insulin (µU/mL)</label>
+                    <span class="bt-range">[10 - 846]</span>
+                  </div>
+                  <input type="number" id="inputInsulin" name="Insulin" min="10" max="850" step="1" value="90" class="bt-input" required>
+                </div>
+
+                <!-- 8. Diabetes Pedigree Function -->
+                <div class="biomarker-tile">
+                  <div class="bt-top">
+                    <span class="bt-icon">🧬</span>
+                    <label for="inputPedigree" class="bt-label">Diabetes Pedigree Function</label>
+                    <span class="bt-range">[0.078 - 2.42]</span>
+                  </div>
+                  <input type="number" id="inputPedigree" name="DiabetesPedigreeFunction" min="0.05" max="2.50" step="0.01" value="0.38" class="bt-input" required>
+                </div>
+
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="hud-form-actions">
+                <button type="submit" class="btn-run-prediction" id="btnCalculate">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                  <span>RUN PREDICTION</span>
+                </button>
+                <button type="button" class="btn-hud-reset" id="btnResetForm">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  <span>Reset</span>
+                </button>
+              </div>
+            </form>
+
+            <!-- Input Validation Status Accordion -->
+            <div class="validation-status-box">
+              <div class="vs-left">
+                <span class="vs-check">✓</span>
+                <strong>Input Validation</strong>
+                <span class="vs-sub">All values are within valid clinical ranges.</span>
+              </div>
+              <span class="vs-chevron">▾</span>
+            </div>
+
+            <!-- About These Features Card -->
+            <div class="features-info-card">
+              <div class="fic-icon">ℹ️</div>
+              <div class="fic-body">
+                <strong>About These Features</strong>
+                <p>These are the 8 clinical measurements from the Pima Indians Diabetes dataset used to predict diabetes risk. The model analyzes patterns in these features to estimate the probability of diabetes.</p>
+              </div>
+            </div>
+
+          </div>
+        </main>
+
+        <!-- ───────────────────────────────────────────────────────────
+             COLUMN 3: PREDICTION OUTPUT, SHAP & MODEL PERFORMANCE
+        ──────────────────────────────────────────────────────────── -->
+        <aside class="pred-col pred-col-results">
+          
+          <!-- Card 1: PREDICTION OUTPUT -->
+          <div class="hud-card output-card">
+            <div class="hud-card-header">
+              <div class="hud-title-with-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                <h3>PREDICTION OUTPUT</h3>
+              </div>
+              
+              <!-- Model Selector Dropdown Pill -->
+              <div class="model-selector-pill" id="modelSelectorDropdown">
+                <select id="modelSelectControl" class="hud-model-select" aria-label="Select Active Prediction Model">
+                  <option value="xgboost" selected>XGBoost Model</option>
+                  <option value="rf">Random Forest</option>
+                  <option value="ann">Neural Net (ANN)</option>
+                  <option value="svm">Support Vector (SVM)</option>
+                </select>
+                <span class="badge-calibrated">🟢 Calibrated ℹ️</span>
+              </div>
+            </div>
+
+            <!-- Probability Stat -->
+            <div class="prob-stat-block">
+              <span class="ps-label">Diabetes Risk Probability</span>
+              <div class="ps-score-row">
+                <strong class="ps-huge-score" id="riskScoreLarge">62%</strong>
+                <span class="risk-pill-badge" id="riskClassBadge">🛡️ Moderate Risk</span>
+              </div>
+            </div>
+
+            <!-- Risk Range Scale Legend -->
+            <div class="risk-scale-legend">
+              <div class="rsl-item">
+                <span class="rsl-dot dot-low"></span>
+                <span>0 – 30% Low Risk</span>
+              </div>
+              <div class="rsl-item">
+                <span class="rsl-dot dot-mod"></span>
+                <span>31 – 60% Moderate Risk</span>
+              </div>
+              <div class="rsl-item">
+                <span class="rsl-dot dot-high"></span>
+                <span>61 – 100% High Risk</span>
+              </div>
+            </div>
+
+            <!-- Clinical Screening Threshold Control -->
+            <div class="hud-threshold-box">
+              <div class="htb-top">
+                <span class="htb-label">Clinical Screening Threshold</span>
+                <span class="htb-val" id="dispThresholdVal">0.50 (Standard)</span>
+              </div>
+              <input type="range" id="sliderThreshold" min="0.10" max="0.90" step="0.01" value="0.50" class="hud-threshold-slider">
+              
+              <div class="htb-presets">
+                <button type="button" class="btn-thresh-preset active" data-thresh="0.50">Balanced (0.50)</button>
+                <button type="button" class="btn-thresh-preset" data-thresh="val-opt" id="btnThreshValOpt">Val-Optimal (0.53)</button>
+                <button type="button" class="btn-thresh-preset" data-thresh="0.25">Screening (0.25)</button>
+                <button type="button" class="btn-thresh-preset" data-thresh="0.65">Diagnostic (0.65)</button>
+              </div>
+
+              <div class="screening-decision-row">
+                <span class="sdr-label">Screening Decision:</span>
+                <span class="sdr-badge" id="screeningDecisionBadge">🛡️ Negative (Below Threshold)</span>
+              </div>
+
+              <div class="htb-tradeoff-note" id="threshTradeoffNote">
+                Threshold balances false alarms vs. missed cases. Screening predictions are statistical risk indicators, not medical diagnoses.
+              </div>
+            </div>
+
+            <!-- Model Uncertainty Box -->
+            <div class="hud-alert-box alert-subtle">
+              <div class="hab-icon">⚠️</div>
+              <div class="hab-body">
+                <strong id="cardUncertaintyTitle">Model Uncertainty: Moderate</strong>
+                <p id="cardUncertaintyDesc">Prediction confidence is balanced. Consider additional clinical follow-up like venous HbA1c testing.</p>
+              </div>
+            </div>
           </div>
 
-          <form id="predictionForm" class="pima-form" novalidate>
-            <div class="form-grid">
-              
-              <!-- 1. Glucose -->
-              <div class="form-field highlight-field">
-                <div class="field-label-row">
-                  <label for="inputGlucose">Plasma Glucose (2-hr OGTT)</label>
-                  <span class="field-unit">mg/dL</span>
-                </div>
-                <div class="field-input-row">
-                  <input type="number" id="inputGlucose" name="Glucose" min="40" max="300" step="1" value="100" required>
-                  <span class="field-range">40–300</span>
-                </div>
-                <span class="field-hint">Primary driver of model prediction &amp; 3D bloodstream visual.</span>
+          <!-- Card 2: SHAP FEATURE CONTRIBUTION -->
+          <div class="hud-card shap-card">
+            <div class="hud-card-header">
+              <div class="hud-title-with-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>
+                <h3 id="shapCardHeading">SHAP Feature Contribution</h3>
               </div>
+              <span class="shap-active-model-tag" id="shapModelTag">XGBoost</span>
+            </div>
+            <p class="shap-disclaimer-sub">Directional associations with risk relative to cohort baseline. Statistical dependencies, not causal medical effects.</p>
 
-              <!-- 2. BMI -->
-              <div class="form-field highlight-field">
-                <div class="field-label-row">
-                  <label for="inputBmi">Body Mass Index (BMI)</label>
-                  <span class="field-unit">kg/m²</span>
-                </div>
-                <div class="field-input-row">
-                  <input type="number" id="inputBmi" name="BMI" min="12" max="67" step="0.1" value="26.5" required>
-                  <span class="field-range">12–67</span>
-                </div>
-                <span class="field-hint">Key metabolic indicator of adiposity.</span>
+            <!-- Dynamic Horizontal Waterfall Bars -->
+            <div class="shap-waterfall-list" id="shapBarsList">
+              <!-- Rendered dynamically by script.js -->
+            </div>
+          </div>
+
+          <!-- Card 3: MODEL PERFORMANCE (TEST SET) & COMPARISON TABLE -->
+          <div class="hud-card performance-card">
+            <div class="hud-card-header">
+              <div class="hud-title-with-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <h3>Model Performance (Test Set)</h3>
               </div>
-
-              <!-- 3. Age -->
-              <div class="form-field">
-                <div class="field-label-row">
-                  <label for="inputAge">Patient Age</label>
-                  <span class="field-unit">years</span>
-                </div>
-                <div class="field-input-row">
-                  <input type="number" id="inputAge" name="Age" min="18" max="100" step="1" value="33" required>
-                  <span class="field-range">18–100</span>
-                </div>
-              </div>
-
-              <!-- 4. Serum Insulin -->
-              <div class="form-field">
-                <div class="field-label-row">
-                  <label for="inputInsulin">Serum Insulin (2-hr)</label>
-                  <span class="field-unit">µU/mL</span>
-                </div>
-                <div class="field-input-row">
-                  <input type="number" id="inputInsulin" name="Insulin" min="10" max="850" step="1" value="85" required>
-                  <span class="field-range">10–850</span>
-                </div>
-              </div>
-
-              <!-- 5. Blood Pressure -->
-              <div class="form-field">
-                <div class="field-label-row">
-                  <label for="inputBp">Blood Pressure (Diastolic)</label>
-                  <span class="field-unit">mm Hg</span>
-                </div>
-                <div class="field-input-row">
-                  <input type="number" id="inputBp" name="BloodPressure" min="30" max="180" step="1" value="72" required>
-                  <span class="field-range">30–180</span>
-                </div>
-              </div>
-
-              <!-- 6. Skin Thickness -->
-              <div class="form-field">
-                <div class="field-label-row">
-                  <label for="inputSkin">Triceps Skin Thickness</label>
-                  <span class="field-unit">mm</span>
-                </div>
-                <div class="field-input-row">
-                  <input type="number" id="inputSkin" name="SkinThickness" min="5" max="99" step="1" value="23" required>
-                  <span class="field-range">5–99</span>
-                </div>
-              </div>
-
-              <!-- 7. Pregnancies -->
-              <div class="form-field">
-                <div class="field-label-row">
-                  <label for="inputPreg">Pregnancies</label>
-                  <span class="field-unit">count</span>
-                </div>
-                <div class="field-input-row">
-                  <input type="number" id="inputPreg" name="Pregnancies" min="0" max="20" step="1" value="1" required>
-                  <span class="field-range">0–20</span>
-                </div>
-              </div>
-
-              <!-- 8. Diabetes Pedigree Function -->
-              <div class="form-field">
-                <div class="field-label-row">
-                  <label for="inputPedigree">Pedigree Function (Genetic)</label>
-                  <span class="field-unit">score</span>
-                </div>
-                <div class="field-input-row">
-                  <input type="number" id="inputPedigree" name="DiabetesPedigreeFunction" min="0.05" max="2.50" step="0.01" value="0.38" required>
-                  <span class="field-range">0.05–2.50</span>
-                </div>
-              </div>
-
+              <button type="button" class="btn-toggle-comparison" id="btnToggleComparison">Compare 4 Models ▾</button>
             </div>
 
-            <!-- Form Action Buttons -->
-            <div class="form-actions">
-              <button type="submit" class="btn-calculate" id="btnCalculate">
-                <span>RECALCULATE PREDICTION &amp; SHAP</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </button>
-              <button type="button" class="btn-reset" id="btnResetForm">Reset to Defaults</button>
+            <!-- Key Test-Set Metrics 6-Cell Grid -->
+            <div class="metrics-two-col-grid" id="modelMetricsGrid">
+              <div class="metric-cell">
+                <span class="mc-icon">🎯</span>
+                <span class="mc-label">Accuracy</span>
+                <strong class="mc-val" id="perfAcc">76.0%</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="mc-icon">⚡</span>
+                <span class="mc-label">F1-Score</span>
+                <strong class="mc-val" id="perfF1">69.9%</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="mc-icon">⚖️</span>
+                <span class="mc-label">Precision</span>
+                <strong class="mc-val" id="perfPrec">62.3%</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="mc-icon">📈</span>
+                <span class="mc-label">ROC-AUC</span>
+                <strong class="mc-val" id="perfAuc">0.825</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="mc-icon">🩺</span>
+                <span class="mc-label">Recall</span>
+                <strong class="mc-val" id="perfRec">79.6%</strong>
+              </div>
+              <div class="metric-cell">
+                <span class="mc-icon">📉</span>
+                <span class="mc-label">Brier Score</span>
+                <strong class="mc-val" id="perfBrier">0.166</strong>
+              </div>
             </div>
-          </form>
 
-          <!-- Input Connection Notice -->
-          <div class="connection-notice">
-            <span class="cn-icon">🔗</span>
-            <div class="cn-text">
-              <strong>Connected 3D Biological Response:</strong>
-              Modifying Glucose above adjusts 3D bloodstream molecular density in real time. Model prediction updates synapsing frequencies across the 3D neural network.
+            <!-- Expandable Multi-Model Comparison Table Drawer -->
+            <div class="comparison-drawer-content" id="comparisonDrawer">
+              <table class="model-comparison-table">
+                <thead>
+                  <tr>
+                    <th>Model</th>
+                    <th>Prediction</th>
+                    <th>Test Accuracy</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="modelComparisonBody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+              <div class="best-model-panel" style="margin-top:0.75rem;">
+                <span class="bmp-label">🏆 Selected Best:</span>
+                <strong id="bestModelName">XGBoost Classifier</strong>
+                <span class="bmp-acc" id="bestModelAccuracy">76.0%</span>
+              </div>
             </div>
+
+          </div>
+
+        </aside>
+
+      </div><!-- /.pred-dashboard-grid -->
+
+      <!-- ═════════════════════════════════════════════════════════════
+           PHASE 4: NOVEL RESEARCH FEATURE — INTERACTIVE COUNTERFACTUAL EXPLORER
+      ═════════════════════════════════════════════════════════════ -->
+      <div class="counterfactual-explorer-section" id="counterfactualSection">
+        <div class="cf-header">
+          <div class="cf-title-group">
+            <span class="cf-pill-badge">RESEARCH FEATURE &bull; WHAT-IF SIMULATION</span>
+            <h3>Interactive Counterfactual Diabetes Risk Explorer</h3>
+            <p class="cf-desc">
+              Explore hypothetical biomarker scenarios for the active model (<span id="cfActiveModelBadge">XGBoost</span>). Simulate how modifying lifestyle biomarkers shifts predicted risk, while respecting immutable demographic boundaries.
+            </p>
+          </div>
+          <div class="cf-actions-top">
+            <button type="button" class="btn-cf-toggle" id="btnToggleCounterfactual">
+              <span>Open Scenario Explorer</span> ▾
+            </button>
           </div>
         </div>
 
-        <!-- Prediction Result & Explainable AI (SHAP) Card -->
-        <div class="prediction-results-card">
-          <div class="prc-header">
-            <h3>Neural Network Prediction Output</h3>
-            <span class="badge-genuine">AUTHENTIC ANN INFERENCE</span>
+        <div class="cf-drawer-panel" id="cfDrawerPanel">
+          
+          <!-- Presets Bar -->
+          <div class="cf-presets-bar">
+            <span class="cfp-label">Simulation Protocols:</span>
+            <button type="button" class="btn-cf-preset" data-cfpreset="glucose">🎯 Target Normoglycemia (Gluc 95 mg/dL)</button>
+            <button type="button" class="btn-cf-preset" data-cfpreset="bmi">⚖️ Weight Loss (-10% BMI)</button>
+            <button type="button" class="btn-cf-preset" data-cfpreset="lifestyle">🥗 Combined Lifestyle Protocol</button>
+            <button type="button" class="btn-cf-preset" data-cfpreset="recourse">⚡ Optimal Recourse (Risk &lt; 30%)</button>
+            <button type="button" class="btn-cf-preset btn-cf-reset" id="btnResetCounterfactual">↺ Reset to Original</button>
           </div>
 
-          <!-- Probability Gauge -->
-          <div class="risk-gauge-panel">
-            <div class="rg-top">
-              <span class="rg-title">CALCULATED DIABETES RISK PROBABILITY</span>
-              <strong class="rg-score" id="riskScoreDisplay">24.2%</strong>
+          <!-- Counterfactual Grid -->
+          <div class="cf-grid">
+            
+            <!-- Left: Modifiable Biomarker Sliders -->
+            <div class="cf-col cf-controls-col">
+              <h4 class="cf-subheading">1. Adjust Modifiable Clinical Biomarkers</h4>
+              
+              <div class="cf-slider-tile">
+                <div class="cfs-top">
+                  <span class="cfs-name">Plasma Glucose</span>
+                  <span class="cfs-val" id="dispCfGlucose">138 mg/dL</span>
+                </div>
+                <input type="range" id="sliderCfGlucose" min="40" max="300" step="1" value="138" class="cf-slider">
+                <div class="cfs-limits"><span>40 (Hypoglycemic)</span><span>100 (Normal)</span><span>300 (Severe)</span></div>
+              </div>
+
+              <div class="cf-slider-tile">
+                <div class="cfs-top">
+                  <span class="cfs-name">Body Mass Index (BMI)</span>
+                  <span class="cfs-val" id="dispCfBMI">28.5 kg/m²</span>
+                </div>
+                <input type="range" id="sliderCfBMI" min="15.0" max="60.0" step="0.1" value="28.5" class="cf-slider">
+                <div class="cfs-limits"><span>18.5 (Normal)</span><span>25.0 (Overweight)</span><span>30+ (Obese)</span></div>
+              </div>
+
+              <div class="cf-slider-tile">
+                <div class="cfs-top">
+                  <span class="cfs-name">Diastolic Blood Pressure</span>
+                  <span class="cfs-val" id="dispCfBP">72 mm Hg</span>
+                </div>
+                <input type="range" id="sliderCfBP" min="50" max="150" step="1" value="72" class="cf-slider">
+                <div class="cfs-limits"><span>60 (Low)</span><span>80 (Normal)</span><span>120+ (Hypertensive)</span></div>
+              </div>
+
+              <div class="cf-slider-tile">
+                <div class="cfs-top">
+                  <span class="cfs-name">Serum Insulin (2h)</span>
+                  <span class="cfs-val" id="dispCfInsulin">90 µU/mL</span>
+                </div>
+                <input type="range" id="sliderCfInsulin" min="15" max="400" step="1" value="90" class="cf-slider">
+                <div class="cfs-limits"><span>15 (Low)</span><span>100 (Median)</span><span>300+ (High)</span></div>
+              </div>
+
+              <div class="cf-slider-tile">
+                <div class="cfs-top">
+                  <span class="cfs-name">Skin Fold Thickness</span>
+                  <span class="cfs-val" id="dispCfSkin">22 mm</span>
+                </div>
+                <input type="range" id="sliderCfSkin" min="10" max="60" step="1" value="22" class="cf-slider">
+                <div class="cfs-limits"><span>10 mm</span><span>23 mm</span><span>50 mm</span></div>
+              </div>
+
+              <div class="cf-immutable-note">
+                <span class="cin-lock">🔒</span>
+                <span><strong>Immutable Features Locked:</strong> Age (years), Pregnancies, and Diabetes Pedigree Function cannot be biologically reversed and are fixed at patient baseline.</span>
+              </div>
             </div>
-            <div class="rg-track">
-              <div class="rg-fill" id="riskGaugeFill" style="width: 24.2%; background: #10b981;"></div>
+
+            <!-- Right: Impact & Comparison Dashboard -->
+            <div class="cf-col cf-results-col">
+              <h4 class="cf-subheading">2. Predicted Impact Comparison (<span id="cfActiveModelName">XGBoost</span>)</h4>
+
+              <div class="cf-comparison-cards">
+                <div class="cfc-card cfc-original">
+                  <span class="cfc-label">ORIGINAL RISK</span>
+                  <strong class="cfc-score" id="cfOriginalScore">42%</strong>
+                  <span class="cfc-pill" id="cfOriginalPill">Moderate Risk</span>
+                </div>
+                <div class="cfc-arrow">&rarr;</div>
+                <div class="cfc-card cfc-hypothetical">
+                  <span class="cfc-label">HYPOTHETICAL SCENARIO</span>
+                  <strong class="cfc-score" id="cfHypoScore">26%</strong>
+                  <span class="cfc-pill" id="cfHypoPill">Low Risk</span>
+                </div>
+              </div>
+
+              <!-- Delta Stat Card -->
+              <div class="cf-delta-stat" id="cfDeltaBox">
+                <div class="cfd-left">
+                  <span class="cfd-label">Net Probability Difference (&Delta;):</span>
+                  <strong class="cfd-val" id="cfDeltaVal">-16% Risk Reduction</strong>
+                </div>
+                <span class="cfd-badge badge-pass" id="cfDeltaBadge">Effective Shift</span>
+              </div>
+
+              <!-- Summary of Altered Biomarkers -->
+              <div class="cf-changes-table-box">
+                <div class="ctb-title">Biomarker Modifications in this Scenario:</div>
+                <ul class="ctb-list" id="cfChangesList">
+                  <!-- Dynamically rendered -->
+                </ul>
+              </div>
+
+              <!-- Model Explanation Note -->
+              <div class="cf-explanation-card">
+                <div class="cec-icon">💡</div>
+                <div class="cec-body">
+                  <strong>Active Model Response:</strong>
+                  <p id="cfExplanationText">
+                    Adjusting glucose and body mass alters the dominant decision tree paths, shifting the prediction margin into the low-risk zone.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Non-Causal Medical Disclaimer -->
+              <div class="cf-disclaimer-box">
+                <span class="cdb-icon">⚠️</span>
+                <p>
+                  <strong>Research &amp; Clinical Advisory Notice:</strong> Counterfactual outputs are mathematical model scenarios demonstrating how the trained statistical algorithm evaluates alternative feature vectors. They <strong>do not prove</strong> that an intervention will directly cause individual disease prevention, nor do they replace clinical judgment. Consult a licensed physician for medical diagnosis and treatment planning.
+                </p>
+              </div>
+
             </div>
-            <div class="rg-labels">
-              <span>0% Low Risk</span>
-              <span class="rg-center-marker">Baseline (35.5%)</span>
-              <span>100% High Risk</span>
-            </div>
-            <div class="rg-classification" id="riskClassBadge">
-              <span class="badge-dot"></span>
-              <strong id="riskClassText">LOW ESTIMATED RISK</strong>
-              <span id="riskSubText">(Below population baseline)</span>
-            </div>
+
           </div>
 
-          <!-- SHAP Feature Attribution Waterfall -->
-          <div class="shap-section">
-            <div class="shap-title-row">
-              <h4>SHAP Feature Attribution ($\phi_i$)</h4>
-              <span class="shap-subtitle">Local game-theoretic contribution to this prediction</span>
-            </div>
-
-            <div class="shap-bars-container" id="shapBarsList">
-              <!-- Dynamically populated via script from real model weights -->
-            </div>
-
-            <div class="shap-footer-explanation">
-              <p>
-                <strong>Statistical Attribution vs Biological Causality:</strong>
-                Features with positive values (<span class="val-pos">+</span>) pushed the model's risk score above the population baseline ($E[Y] = 35.5\%$), 
-                while negative values (<span class="val-neg">−</span>) pulled it lower. 
-                Attribution reflects patterns learned from the Pima dataset and should not be confused with personal medical causation.
-              </p>
-            </div>
-          </div>
-
-          <!-- Mandatory Educational Disclaimer -->
-          <div class="educational-disclaimer-box">
-            <div class="ed-icon">⚕️</div>
-            <div class="ed-content">
-              <strong>Educational Research Prototype — Not a Medical Diagnosis</strong>
-              <p>
-                This prediction is produced by a feedforward Artificial Neural Network for computer science and biomedical research. 
-                It is <strong>not</strong> medical advice or a diagnostic assessment. The 3D animations are illustrative educational models 
-                and do not represent an individual's actual internal organs or cellular pathology.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
-    </div>
+
+    </div><!-- /.chapter-container -->
   </section>
 
   <!-- ═════════════════════════════════════════════════════════════
@@ -537,15 +897,15 @@
           
           <div class="metrics-kpi-grid">
             <div class="kpi-card">
-              <span class="kpi-val" id="metricAuc">0.809</span>
+              <span class="kpi-val" id="metricAuc">0.819</span>
               <span class="kpi-label">ROC-AUC SCORE</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-val" id="metricAcc">69.5%</span>
+              <span class="kpi-val" id="metricAcc">73.4%</span>
               <span class="kpi-label">ACCURACY</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-val" id="metricF1">0.561</span>
+              <span class="kpi-val" id="metricF1">0.586</span>
               <span class="kpi-label">F1-SCORE</span>
             </div>
             <div class="kpi-card">
@@ -557,7 +917,7 @@
           <div class="ann-specs-list">
             <div class="as-item">
               <span class="as-key">Network Topology:</span>
-              <span class="as-val">8 Inputs &rarr; 16 Neurons (ReLU) &rarr; 8 Neurons (ReLU) &rarr; 1 Sigmoid Output</span>
+              <span class="as-val">8 Inputs &rarr; 32 Neurons (ReLU) &rarr; 16 Neurons (ReLU) &rarr; 1 Sigmoid Output</span>
             </div>
             <div class="as-item">
               <span class="as-key">Data Imputation &amp; Scaling:</span>
@@ -650,6 +1010,9 @@
   <script src="lib/three.min.js"></script>
   <script src="lib/gsap.min.js"></script>
   <script src="lib/ScrollTrigger.min.js"></script>
+
+  <!-- ALL MODELS CLIENT-SIDE BUNDLE (OFFLINE & LIVE) -->
+  <script src="models_bundle.js"></script>
 
   <!-- MAIN DOCUMENTARY SCRIPT -->
   <script src="script.js"></script>

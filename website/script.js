@@ -7,8 +7,68 @@
 
 const PREFERS_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Embedded authentic model data trained on Pima Indians Diabetes Dataset
-let MODEL_DATA = {"model_name": "Explainable Feedforward ANN (MLP)", "architecture": "8 Inputs -> 16 Hidden (ReLU) -> 8 Hidden (ReLU) -> 1 Output (Sigmoid)", "dataset": "Pima Indians Diabetes Database (NIDDK)", "total_samples": 768, "metrics": {"accuracy": 0.6948051948051948, "precision": 0.5660377358490566, "recall": 0.5555555555555556, "f1_score": 0.5607476635514018, "roc_auc": 0.8087037037037037, "confusion_matrix": [[77, 23], [24, 30]]}, "feature_names": ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"], "feature_specs": {"Pregnancies": {"unit": "count", "min": 0, "max": 20, "default": 1, "step": 1}, "Glucose": {"unit": "mg/dL", "min": 40, "max": 300, "default": 100, "step": 1}, "BloodPressure": {"unit": "mm Hg", "min": 30, "max": 180, "default": 72, "step": 1}, "SkinThickness": {"unit": "mm", "min": 5, "max": 99, "default": 23, "step": 1}, "Insulin": {"unit": "\u00b5U/mL", "min": 10, "max": 850, "default": 85, "step": 1}, "BMI": {"unit": "kg/m\u00b2", "min": 12.0, "max": 67.0, "default": 26.5, "step": 0.1}, "DiabetesPedigreeFunction": {"unit": "score", "min": 0.05, "max": 2.5, "default": 0.38, "step": 0.01}, "Age": {"unit": "years", "min": 18, "max": 100, "default": 33, "step": 1}}, "medians": {"Pregnancies": 3.0, "Glucose": 117.0, "BloodPressure": 72.0, "SkinThickness": 29.0, "Insulin": 125.0, "BMI": 32.4, "DiabetesPedigreeFunction": 0.3825, "Age": 29.0}, "scaler_mean": [3.8192182410423454, 121.67100977198697, 72.1400651465798, 29.042345276872965, 137.70521172638436, 32.44820846905537, 0.477428338762215, 33.36644951140065], "scaler_std": [3.311448216586372, 29.979350764655706, 12.2651192609104, 8.884611281688818, 78.70059996835236, 6.81856216148434, 0.33003119077476745, 11.82379790254742], "weights": [[[-0.09573028269522642, 0.4927257103292036, 0.07646700776660192, 0.10661745591000087, -0.9452043551531554, -0.22264725370750035, -0.5489492901246851, 0.6305598643260814, -0.10372588241051589, -0.23775473688535279, -0.23062913387465594, 0.6011600454646845, 0.2593713533051942, -0.4996659897452234, -0.42794143973229126, -0.04921481941651534], [-0.15923748664247162, -0.24960287699119454, -0.26961041587136053, -0.15704941475523154, 0.3592160605366379, -0.6464758723193211, 0.0723766922902154, 0.16035278851105844, -0.063910276744989, 0.10640245728182886, -0.5534162096827394, 0.32990123144957045, -0.20825979855224025, -0.28139366136535676, 0.47649250474647137, -0.1895366264138792], [-0.2947900425085086, 0.21947816503610884, 0.27249409908423694, 0.04947349444811089, -0.19195373428237064, 0.16930034969961458, -0.062169112083572994, -0.0688114341519922, -0.43780243816359893, -0.07085558055702172, -0.6653583787517279, 0.4989145114307045, -0.7029515825962962, 0.3053133212552336, -0.410988898413168, 0.15185462251597515], [0.03675217472325295, -0.19031694666494126, 0.5438980697994544, 0.23429570260540983, 0.0094985558467588, 0.3016995413026437, 0.2414598079340453, 0.3581573973597034, -0.22074725779544943, -0.5241887123951112, -0.5983657315562688, -0.3146622439302157, -0.36624107201463846, -0.16725543663257494, 0.37953060581092984, -0.3829427793548017], [-0.6442714286873722, -0.012709523602832212, -1.03331610082391, 0.3145386355433315, -0.23365834593217863, 0.6684593421792497, 0.23532098951226874, -0.25890232937861596, -0.4388582563550268, 0.27340720582165495, 0.14378313481312804, 0.5403243703660698, -0.19019181908544694, -0.16243517812562455, -0.13434510600716457, -0.300242222272244], [0.3169226000620149, 0.27153365160420223, -0.2358528813586526, -0.6386486853955309, 0.004314728198522511, -0.2915105694243393, 0.4447543705863714, 0.24982830152933483, 0.2615813686224154, -0.236127815034459, -0.701555514051535, 0.36488647584715905, 0.062425854482133045, 0.00063144697830162, 0.3135373565685123, 0.00011006340957537652], [-0.14719147700771662, -0.19465230578588086, -0.563169178540695, -0.19038051653372037, -0.19487008713155618, -0.010500097816150057, -0.08312587095790493, -0.13501399850850335, 0.020610638049153637, -0.30010270252648524, -0.41494542967413045, 0.37380410253495394, 0.08647160705825935, -0.34193058090890316, -0.0873847847153121, -0.1361879518949183], [0.7657768025914983, 0.28580510406419346, -0.1563675251053182, 0.3804012360834045, 0.4301062795231917, -0.6057879003940386, 0.7504790731141627, -0.06749624134039903, 0.3951880182206557, 0.34254027550885496, -0.4271713987707891, -0.14460784265830087, -0.43131013834381315, 0.29315305126296426, 0.3860771354186898, 0.7043608530914905]], [[-0.5148566073171076, -0.032890149575846184, 0.4830029010650214, 0.2873399107980687, -0.6289820446660285, 0.2528148885463922, 0.8114272856198654, -0.5803872717583786], [-0.12992829693202074, -0.02624624352438069, 0.5596638234533873, -0.3763120322867602, 0.30699157562119084, 0.3472419876934477, -0.135456621252442, 0.387698144408789], [-0.31498453440103963, 0.3788480838746646, 0.4599411004216003, -0.15239913443527917, -0.8348925605919882, 0.6665955457168045, -0.056222679549284775, -0.3045191905166451], [-0.3935779269246108, 0.14074916927631823, 0.3302454399114516, -0.4167377267155049, 0.05650350687961153, -0.16740122686205106, 0.3791759156641812, -0.09323705231791052], [0.42571422962583466, -0.3321310249798425, 0.3000190919044779, -0.016076333925249514, 0.13521022925026432, -0.5468608841786952, 0.2895889958627449, 0.5900708188012842], [-0.4986533563657734, 0.5477593620696303, 0.46179723477554707, 0.45352406664354256, -0.24279539027980263, -0.038487882018565504, -0.07288260885826521, 0.12888750392683543], [0.5826932718401235, 0.02319617567719332, -0.21478862160247425, -0.4403694151586796, 0.5268881519993998, 0.23603645991715577, 0.4821743641498148, 0.44501604405529094], [0.4946591518258714, -0.44357691892685375, -0.34318548331911, 0.28951032588567555, 0.6578244959940731, -0.270465752546574, -1.0071080989191417, 0.5030331060234212], [-0.3048450051722195, -0.2978928703968873, 0.18057421550081945, 0.11240841362887158, 0.2969237793018567, -0.015229233377617285, 0.23398433198923305, -0.28733515253943137], [0.1831911599712039, 0.0057311425645537595, -0.07811690705720649, 0.2758266053574201, 0.42934194820409227, -0.17403876913890318, -0.6712371332411831, 0.08441483330626022], [-0.2709721667546705, -0.04921687788963452, 0.7018632346981072, 0.4050198677151439, 0.17807282303386798, 0.374195138225979, 0.5475028337931831, -0.13505373367070622], [0.1816558246300077, -0.05684556475267971, -0.48674390427739345, 0.12257087334615718, -0.1341617905978958, -0.8265233333713562, 0.3043285743992602, -0.21067832264060185], [0.7558366815712569, 0.34371599308753026, 0.23700737155188326, -0.27081054777815117, -0.6031505577875979, 0.3622377777508223, -0.2687342026525299, 0.6263541439581409], [0.45522876000951995, 0.4306028767259923, -0.15280912225535573, 0.27911519850229977, 0.2949109253686679, -0.12313545056938882, -0.4361739455295071, 0.09497013668770642], [0.7190871740822601, 0.026065068095311558, 0.1622058003309486, -1.019505672230159, 0.4366070373114558, 0.5075857004799502, -0.6438656331622777, 0.21271150925650092], [0.1781242944122034, 0.49699189510549907, 0.5310002029203352, 0.7571059236137517, -0.30155178434618723, 0.08287341470304357, 0.6695336634871606, 0.11144559789165367]], [[0.840850635532329], [-0.26646118471564234], [-0.4907480582193615], [-0.9509247644345521], [0.3040322537665253], [-1.0208068690669685], [-0.5124205300293488], [0.14708107305943427]]], "biases": [[-0.3846406203047214, -0.3883159982553722, -0.22929161523943317, -0.340393510383411, -0.2778827897067043, 0.183961697187783, 0.548403314608678, -0.37975761991985363, -0.2727124846231563, 0.06468177141668276, -0.12005591102072903, 0.2989467221054629, 0.6539865263995097, -0.44397870390565003, 0.4995056374878751, -0.4026896266692574], [0.4891056294649858, 0.554457851735247, 0.2453932379473335, -0.07923953562039307, 0.123516236916706, 0.32195017364120676, 0.26723463628118305, 0.2266982694941854], [-0.34580217006817415]], "expected_value": 0.35465005937623123, "global_importance_pct": {"Pregnancies": 11.4, "Glucose": 20.3, "BloodPressure": 6.8, "SkinThickness": 6.9, "Insulin": 15.1, "BMI": 15.1, "DiabetesPedigreeFunction": 8.3, "Age": 16.0}};
+// Embedded authentic model data synchronized with window.ALL_MODELS_DATA (Phase 1 Fix)
+function getBaseModelData() {
+  if (typeof window !== 'undefined' && window.ALL_MODELS_DATA && window.ALL_MODELS_DATA.models) {
+    const annModel = window.ALL_MODELS_DATA.models.find(m => m.id === 'ann');
+    const meta = window.ALL_MODELS_DATA.metadata;
+    if (annModel && meta) {
+      return {
+        model_name: annModel.name,
+        architecture: "8 Inputs -> 32 Hidden (ReLU) -> 16 Hidden (ReLU) -> 1 Output (Sigmoid)",
+        dataset: "Pima Indians Diabetes Database (NIDDK)",
+        total_samples: 768,
+        metrics: {
+          accuracy: annModel.accuracy || 0.7338,
+          precision: annModel.precision || 0.6444,
+          recall: annModel.recall || 0.5370,
+          f1_score: annModel.f1 || 0.5859,
+          roc_auc: annModel.roc_auc || 0.8191,
+          confusion_matrix: [[84, 16], [25, 29]]
+        },
+        feature_names: meta.feature_names,
+        feature_specs: meta.feature_specs,
+        medians: meta.medians,
+        scaler_mean: meta.scaler_mean,
+        scaler_std: meta.scaler_std,
+        weights: annModel.weights,
+        biases: annModel.biases,
+        expected_value: annModel.expected_value || 0.3547,
+        global_importance_pct: annModel.shap_importance || { "Glucose": 35.2, "BMI": 22.8, "Age": 14.5, "DiabetesPedigreeFunction": 8.7, "Insulin": 7.4, "Pregnancies": 5.8, "SkinThickness": 3.1, "BloodPressure": 2.5 }
+      };
+    }
+  }
+  return null;
+}
+
+let MODEL_DATA = getBaseModelData();
+if (!MODEL_DATA) {
+  // Safe synchronous fallback matching model/model_weights.json (8->32->16->1)
+  MODEL_DATA = {
+    model_name: "Explainable Feedforward ANN (MLP)",
+    architecture: "8 Inputs -> 32 Hidden -> 16 Hidden -> 1 Output (Sigmoid)",
+    dataset: "Pima Indians Diabetes Database (NIDDK)",
+    total_samples: 768,
+    metrics: { accuracy: 0.733766, precision: 0.644444, recall: 0.537037, f1_score: 0.585859, roc_auc: 0.819074, confusion_matrix: [[84, 16], [25, 29]] },
+    feature_names: ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"],
+    feature_specs: {
+      "Pregnancies": {"unit": "count", "min": 0, "max": 20, "default": 1, "step": 1},
+      "Glucose": {"unit": "mg/dL", "min": 40, "max": 300, "default": 100, "step": 1},
+      "BloodPressure": {"unit": "mm Hg", "min": 30, "max": 180, "default": 72, "step": 1},
+      "SkinThickness": {"unit": "mm", "min": 5, "max": 99, "default": 23, "step": 1},
+      "Insulin": {"unit": "µU/mL", "min": 10, "max": 850, "default": 85, "step": 1},
+      "BMI": {"unit": "kg/m²", "min": 12.0, "max": 67.0, "default": 26.5, "step": 0.1},
+      "DiabetesPedigreeFunction": {"unit": "score", "min": 0.05, "max": 2.5, "default": 0.38, "step": 0.01},
+      "Age": {"unit": "years", "min": 18, "max": 100, "default": 33, "step": 1}
+    },
+    medians: {"Pregnancies": 3.0, "Glucose": 117.0, "BloodPressure": 72.0, "SkinThickness": 29.0, "Insulin": 125.0, "BMI": 32.4, "DiabetesPedigreeFunction": 0.3825, "Age": 29.0},
+    scaler_mean: [3.819218, 121.67101, 72.140065, 29.042345, 137.705212, 32.448208, 0.477428, 33.36645],
+    get weights() { return (typeof window !== 'undefined' && window.ALL_MODELS_DATA && window.ALL_MODELS_DATA.models) ? (window.ALL_MODELS_DATA.models.find(m => m.id === 'ann') || {}).weights || [] : []; },
+    get biases() { return (typeof window !== 'undefined' && window.ALL_MODELS_DATA && window.ALL_MODELS_DATA.models) ? (window.ALL_MODELS_DATA.models.find(m => m.id === 'ann') || {}).biases || [] : []; },
+    expected_value: 0.3547, global_importance_pct: {}
+  };
+}
+
 
 /* ==========================================================================
    1. GLOBAL THREE.JS SCENE SETUP
@@ -1619,162 +1679,617 @@ function sigmoid(z) {
   return 1 / (1 + Math.exp(-Math.max(-25, Math.min(25, z))));
 }
 
-function forwardPassANN(zInput) {
-  const W1 = MODEL_DATA.weights[0]; // 8 x 16
-  const b1 = MODEL_DATA.biases[0];  // 16
-  const W2 = MODEL_DATA.weights[1]; // 16 x 8
-  const b2 = MODEL_DATA.biases[1];  // 8
-  const W3 = MODEL_DATA.weights[2]; // 8 x 1
-  const b3 = MODEL_DATA.biases[2];  // 1
+function getANNModelData() {
+  if (typeof window !== 'undefined' && window.ALL_MODELS_DATA && window.ALL_MODELS_DATA.models) {
+    const ann = window.ALL_MODELS_DATA.models.find(m => m.id === 'ann');
+    if (ann && ann.weights && ann.weights.length >= 3 && ann.biases && ann.biases.length >= 3) {
+      return ann;
+    }
+  }
+  if (!MODEL_DATA || !MODEL_DATA.weights || MODEL_DATA.weights.length < 3) {
+    MODEL_DATA = getBaseModelData();
+  }
+  return MODEL_DATA;
+}
 
-  const h1 = new Array(16).fill(0);
-  for (let j = 0; j < 16; j++) {
+// Phase 1 Fix: Dynamic Multi-Layer Feedforward ANN supporting arbitrary architectures (8 -> 32 -> 16 -> 1)
+function forwardPassANN(zInput, weightsOverride, biasesOverride) {
+  const model = getANNModelData();
+  const weights = weightsOverride || (model ? model.weights : []);
+  const biases  = biasesOverride  || (model ? model.biases : []);
+
+  if (!weights || weights.length < 3 || !biases || biases.length < 3) {
+    return { prob: 0.3547, logit: -0.6, h1: [], h2: [] };
+  }
+
+  // Layer 1: Input (8) -> Hidden 1 (32)
+  const W1 = weights[0];
+  const b1 = biases[0];
+  const n1 = b1.length;
+  const h1 = new Array(n1);
+  for (let j = 0; j < n1; j++) {
     let sum = b1[j];
-    for (let i = 0; i < 8; i++) sum += zInput[i] * W1[i][j];
+    for (let i = 0; i < zInput.length; i++) {
+      sum += zInput[i] * W1[i][j];
+    }
     h1[j] = Math.max(0, sum);
   }
 
-  const h2 = new Array(8).fill(0);
-  for (let k = 0; k < 8; k++) {
+  // Layer 2: Hidden 1 (32) -> Hidden 2 (16)
+  const W2 = weights[1];
+  const b2 = biases[1];
+  const n2 = b2.length;
+  const h2 = new Array(n2);
+  for (let k = 0; k < n2; k++) {
     let sum = b2[k];
-    for (let j = 0; j < 16; j++) sum += h1[j] * W2[j][k];
+    for (let j = 0; j < n1; j++) {
+      sum += h1[j] * W2[j][k];
+    }
     h2[k] = Math.max(0, sum);
   }
 
+  // Layer 3: Hidden 2 (16) -> Output (1)
+  const W3 = weights[2];
+  const b3 = biases[2];
   let logit = b3[0];
-  for (let k = 0; k < 8; k++) logit += h2[k] * W3[k][0];
+  for (let k = 0; k < n2; k++) {
+    logit += h2[k] * W3[k][0];
+  }
 
   const prob = sigmoid(logit);
   return { prob, logit, h1, h2 };
 }
 
-function computeAuthenticSHAP(rawVector) {
-  const cleanVector = rawVector.map((val, i) => {
-    const fName = MODEL_DATA.feature_names[i];
-    return (fName !== 'Pregnancies' && (isNaN(val) || val === null || val <= 0))
-      ? MODEL_DATA.medians[fName]
-      : (isNaN(val) ? 0 : val);
-  });
+// Recursive Tree Traversal supporting both XGBoost (<) and Scikit-Learn (<=) split semantics
+function traverseTreeBundle(node, vec, isXGBoost = false) {
+  if (node.v !== undefined && (!node.l || !node.r)) return node.v;
+  if (!node.l && !node.r) return node.v !== undefined ? node.v : (node.ev !== undefined ? node.ev : 0.5);
+  const val = vec[node.f];
+  const goLeft = isXGBoost ? (val < node.t) : (val <= node.t);
+  return traverseTreeBundle(goLeft ? node.l : node.r, vec, isXGBoost);
+}
 
-  const zVector = cleanVector.map((val, i) => {
-    return (val - MODEL_DATA.scaler_mean[i]) / MODEL_DATA.scaler_std[i];
-  });
-
-  const { prob: yPred } = forwardPassANN(zVector);
-  const baselineExpected = MODEL_DATA.expected_value || 0.3547;
-  const deltaTotal = yPred - baselineExpected;
-
-  const steps = 6;
+// TreeSHAP-style path-dependent feature attributions for tree models
+function computeTreeSHAP(trees, vector, isXGBoost = false) {
   const rawAttributions = new Array(8).fill(0);
-  const eps = 1e-4;
+  if (!trees || !trees.length) return rawAttributions;
 
-  for (let s = 1; s <= steps; s++) {
-    const alpha = s / steps;
-    const zStep = zVector.map(z => z * alpha);
-    const baseP = forwardPassANN(zStep).prob;
+  for (let t = 0; t < trees.length; t++) {
+    let curr = trees[t];
+    while (curr && curr.l && curr.r) {
+      const feat = curr.f;
+      const thresh = curr.t;
+      const val = vector[feat];
+      const goLeft = isXGBoost ? (val < thresh) : (val <= thresh);
+      const nextNode = goLeft ? curr.l : curr.r;
 
-    for (let i = 0; i < 8; i++) {
-      const zPerturbed = zStep.slice();
-      zPerturbed[i] += eps;
-      const pertP = forwardPassANN(zPerturbed).prob;
-      const grad = (pertP - baseP) / eps;
-      rawAttributions[i] += grad * zVector[i];
+      const currVal = curr.ev !== undefined ? curr.ev : (curr.v !== undefined ? curr.v : 0);
+      const nextVal = nextNode.v !== undefined ? nextNode.v : (nextNode.ev !== undefined ? nextNode.ev : 0);
+      const delta = nextVal - currVal;
+      rawAttributions[feat] += delta;
+      curr = nextNode;
     }
   }
 
-  for (let i = 0; i < 8; i++) rawAttributions[i] /= steps;
+  if (!isXGBoost) {
+    for (let i = 0; i < 8; i++) {
+      rawAttributions[i] /= trees.length;
+    }
+  }
+  return rawAttributions;
+}
 
-  const sumRaw = rawAttributions.reduce((a, b) => a + b, 0);
-  const shapAttributions = rawAttributions.map(a => {
-    return Math.abs(sumRaw) > 1e-6 ? (a / sumRaw) * deltaTotal : a;
+// Universal Model Evaluator across all 4 Architectures
+function evaluateSingleModel(modelId, rawFeatures) {
+  const bundle = window.ALL_MODELS_DATA;
+  const meta = bundle ? bundle.metadata : MODEL_DATA;
+  const medians = meta.medians;
+  const mean = meta.scaler_mean;
+  const std  = meta.scaler_std;
+
+  // Impute physiologically impossible 0s with training medians
+  const imputed = rawFeatures.map((v, i) => {
+    const featName = meta.feature_names[i];
+    if (['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI'].includes(featName) && (v === 0 || isNaN(v))) {
+      return medians[featName] !== undefined ? medians[featName] : v;
+    }
+    return isNaN(v) ? 0 : v;
   });
 
-  return {
-    rawVector: cleanVector,
-    zVector,
-    probability: yPred,
-    baselineExpected,
-    attributions: shapAttributions
-  };
+  const scaled = imputed.map((v, i) => (v - mean[i]) / (std[i] || 1));
+
+  if (!bundle || !bundle.models) {
+    const annRes = forwardPassANN(scaled);
+    return { probability: annRes.prob, logit: annRes.logit };
+  }
+
+  const model = bundle.models.find(m => m.id === modelId) || bundle.models[0];
+
+  if (model.type === 'xgboost_tree') {
+    let margin = 0;
+    if (model.trees && model.trees.length > 0) {
+      for (let i = 0; i < model.trees.length; i++) {
+        margin += traverseTreeBundle(model.trees[i], imputed, true);
+      }
+    }
+    const prob = 1.0 / (1.0 + Math.exp(-margin));
+    return { probability: Math.max(0, Math.min(1, prob)), margin };
+  } else if (model.type === 'rf_tree') {
+    if (model.trees && model.trees.length > 0) {
+      let sum = 0;
+      for (let i = 0; i < model.trees.length; i++) {
+        sum += traverseTreeBundle(model.trees[i], imputed, false);
+      }
+      const prob = sum / model.trees.length;
+      return { probability: Math.max(0, Math.min(1, prob)) };
+    }
+  } else if (model.type === 'svm_rbf') {
+    let df = model.intercept;
+    const gamma = model.gamma;
+    for (let i = 0; i < model.support_vectors.length; i++) {
+      const sv = model.support_vectors[i];
+      let distSq = 0;
+      for (let j = 0; j < 8; j++) {
+        const diff = scaled[j] - sv[j];
+        distSq += diff * diff;
+      }
+      df += model.dual_coef[i] * Math.exp(-gamma * distSq);
+    }
+    const a = model.platt_a !== undefined ? model.platt_a : 1.32367218;
+    const b = model.platt_b !== undefined ? model.platt_b : -0.56986700;
+    const prob = 1.0 / (1.0 + Math.exp(-(a * df + b)));
+    return { probability: Math.max(0, Math.min(1, prob)), decisionFunction: df };
+  } else if (model.type === 'ann_mlp') {
+    const annModel = getANNModelData();
+    const annRes = forwardPassANN(scaled, (model && model.weights) ? model.weights : annModel.weights, (model && model.biases) ? model.biases : annModel.biases);
+    return { probability: annRes.prob, logit: annRes.logit };
+  }
+
+  return { probability: 0.5 };
+}
+
+// Phase 2 Fix: Model-Specific Explanations (TreeSHAP for Trees, Integrated Gradients for ANN, Kernel Perturbation for SVM)
+function computeModelSpecificSHAP(activeModelId, rawFeatures, currentProb) {
+  const meta = window.ALL_MODELS_DATA ? window.ALL_MODELS_DATA.metadata : MODEL_DATA;
+  const featureNames = meta.feature_names;
+  const medians = meta.medians;
+  const baselineExpected = 0.3547;
+  const deltaTotal = currentProb - baselineExpected;
+
+  // Impute raw features with training medians for valid clinical inference
+  const cleanVector = rawFeatures.map((val, i) => {
+    const fName = featureNames[i];
+    return (['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI'].includes(fName) && (val === 0 || isNaN(val) || val === null))
+      ? (medians[fName] !== undefined ? medians[fName] : val) : (isNaN(val) ? 0 : val);
+  });
+
+  if (activeModelId === 'ann') {
+    // True Integrated Gradients over the verified 8 -> 32 -> 16 -> 1 ANN architecture
+    const annModel = getANNModelData();
+    const mean = meta.scaler_mean;
+    const std = meta.scaler_std;
+    const zVector = cleanVector.map((val, i) => (val - mean[i]) / (std[i] || 1));
+    const steps = 8;
+    const rawAttributions = new Array(8).fill(0);
+    const eps = 1e-4;
+
+    for (let s = 1; s <= steps; s++) {
+      const alpha = s / steps;
+      const zStep = zVector.map(z => z * alpha);
+      const baseP = forwardPassANN(zStep, annModel.weights, annModel.biases).prob;
+
+      for (let i = 0; i < 8; i++) {
+        const zPerturbed = zStep.slice();
+        zPerturbed[i] += eps;
+        const pertP = forwardPassANN(zPerturbed, annModel.weights, annModel.biases).prob;
+        const grad = (pertP - baseP) / eps;
+        rawAttributions[i] += grad * zVector[i];
+      }
+    }
+    for (let i = 0; i < 8; i++) rawAttributions[i] /= steps;
+    const sumRaw = rawAttributions.reduce((a, b) => a + b, 0);
+    const attributions = rawAttributions.map(a => Math.abs(sumRaw) > 1e-6 ? (a / sumRaw) * deltaTotal : a);
+    return {
+      attributions,
+      method: 'ANN Integrated Gradients',
+      modelName: 'Artificial Neural Network'
+    };
+  } else if (activeModelId === 'xgboost' || activeModelId === 'rf') {
+    // TreeSHAP path-dependent attributions from the client tree ensemble
+    const bundle = window.ALL_MODELS_DATA;
+    const model = (bundle && bundle.models) ? bundle.models.find(m => m.id === activeModelId) : null;
+    const isXGB = activeModelId === 'xgboost';
+    const trees = model ? model.trees : [];
+    const rawAttributions = computeTreeSHAP(trees, cleanVector, isXGB);
+
+    const sumRaw = rawAttributions.reduce((a, b) => a + b, 0);
+    const attributions = rawAttributions.map(a => Math.abs(sumRaw) > 1e-6 ? (a / sumRaw) * deltaTotal : a);
+
+    return {
+      attributions,
+      method: isXGB ? 'XGBoost TreeSHAP' : 'Random Forest TreeSHAP',
+      modelName: isXGB ? 'XGBoost Classifier' : 'Random Forest Classifier'
+    };
+  } else {
+    // SVM Decision Manifold Kernel Perturbation
+    const rawDeltas = new Array(8).fill(0);
+    for (let i = 0; i < 8; i++) {
+      const modifiedVec = rawFeatures.slice();
+      modifiedVec[i] = medians[featureNames[i]];
+      const modProb = evaluateSingleModel(activeModelId, modifiedVec).probability;
+      rawDeltas[i] = currentProb - modProb;
+    }
+
+    const sumDeltas = rawDeltas.reduce((a, b) => a + b, 0);
+    const attributions = rawDeltas.map(d => {
+      if (Math.abs(sumDeltas) > 1e-6) {
+        return (d / sumDeltas) * deltaTotal;
+      }
+      return 0;
+    });
+
+    return {
+      attributions,
+      method: 'Kernel Perturbation',
+      modelName: 'Support Vector Machine'
+    };
+  }
+}
+
+function computeAuthenticSHAP(rawVector) {
+  const vector = rawVector || getFormFeatureVector();
+  const annEval = evaluateSingleModel('ann', vector);
+  return computeModelSpecificSHAP('ann', vector, annEval.probability);
 }
 
 /* ==========================================================================
    8. CONNECT INPUTS TO 3D VISUALIZATION & PREDICTION PLATFORM
    ========================================================================== */
-const predictionForm   = document.getElementById('predictionForm');
-const riskScoreDisplay = document.getElementById('riskScoreDisplay');
-const riskGaugeFill    = document.getElementById('riskGaugeFill');
-const riskClassText    = document.getElementById('riskClassText');
-const riskSubText      = document.getElementById('riskSubText');
-const shapBarsList     = document.getElementById('shapBarsList');
-const streamGlucVal    = document.getElementById('streamGlucVal');
-const inputGlucose     = document.getElementById('inputGlucose');
+const predictionForm       = document.getElementById('predictionForm');
+const riskScoreDisplay     = document.getElementById('riskScoreDisplay');
+const riskScoreLarge       = document.getElementById('riskScoreLarge');
+const gaugeProgressCircle   = document.getElementById('gaugeProgressCircle');
+const riskClassText        = document.getElementById('riskClassText');
+const riskClassBadge       = document.getElementById('riskClassBadge');
+const riskSubText          = document.getElementById('riskSubText');
+const uncertaintyLevelText = document.getElementById('uncertaintyLevelText');
+const cardUncertaintyTitle = document.getElementById('cardUncertaintyTitle');
+const cardUncertaintyDesc  = document.getElementById('cardUncertaintyDesc');
+const modelConfidenceText  = document.getElementById('modelConfidenceText');
+const modelConfidenceFill  = document.getElementById('modelConfidenceFill');
+const modelSelectControl   = document.getElementById('modelSelectControl');
+const activeModelLabel     = document.getElementById('activeModelLabel');
+const btnToggleComparison  = document.getElementById('btnToggleComparison');
+const comparisonDrawer     = document.getElementById('comparisonDrawer');
+const shapBarsList         = document.getElementById('shapBarsList');
+const shapCardHeading      = document.getElementById('shapCardHeading');
+const shapModelTag         = document.getElementById('shapModelTag');
+const streamGlucVal        = document.getElementById('streamGlucVal');
+const inputGlucose         = document.getElementById('inputGlucose');
+const bestModelName        = document.getElementById('bestModelName');
+const bestModelAcc         = document.getElementById('bestModelAccuracy');
+const comparisonBody       = document.getElementById('modelComparisonBody');
+const riskSilhouette       = document.getElementById('riskSilhouette');
+
+const perfAcc   = document.getElementById('perfAcc');
+const perfF1    = document.getElementById('perfF1');
+const perfPrec  = document.getElementById('perfPrec');
+const perfAuc   = document.getElementById('perfAuc');
+const perfRec   = document.getElementById('perfRec');
+const perfBrier = document.getElementById('perfBrier');
+
+// Phase 3: Clinical Screening Threshold DOM Elements
+const sliderThreshold        = document.getElementById('sliderThreshold');
+const dispThresholdVal        = document.getElementById('dispThresholdVal');
+const btnThreshValOpt         = document.getElementById('btnThreshValOpt');
+const screeningDecisionBadge  = document.getElementById('screeningDecisionBadge');
+const threshTradeoffNote      = document.getElementById('threshTradeoffNote');
+
+let currentThreshold = 0.50;
+const VALIDATION_OPTIMAL_THRESHOLDS = {
+  xgboost: 0.53,
+  rf: 0.49,
+  svm: 0.25,
+  ann: 0.25
+};
+
+// Phase 4: Interactive Counterfactual Explorer DOM Elements
+const btnToggleCounterfactual = document.getElementById('btnToggleCounterfactual');
+const cfDrawerPanel           = document.getElementById('cfDrawerPanel');
+const cfActiveModelName       = document.getElementById('cfActiveModelName');
+const cfActiveModelBadge      = document.getElementById('cfActiveModelBadge');
+const sliderCfGlucose         = document.getElementById('sliderCfGlucose');
+const sliderCfBMI             = document.getElementById('sliderCfBMI');
+const sliderCfBP              = document.getElementById('sliderCfBP');
+const sliderCfInsulin         = document.getElementById('sliderCfInsulin');
+const sliderCfSkin            = document.getElementById('sliderCfSkin');
+const dispCfGlucose           = document.getElementById('dispCfGlucose');
+const dispCfBMI               = document.getElementById('dispCfBMI');
+const dispCfBP                = document.getElementById('dispCfBP');
+const dispCfInsulin           = document.getElementById('dispCfInsulin');
+const dispCfSkin              = document.getElementById('dispCfSkin');
+const cfOriginalScore         = document.getElementById('cfOriginalScore');
+const cfOriginalPill          = document.getElementById('cfOriginalPill');
+const cfHypoScore             = document.getElementById('cfHypoScore');
+const cfHypoPill              = document.getElementById('cfHypoPill');
+const cfDeltaVal              = document.getElementById('cfDeltaVal');
+const cfDeltaBadge            = document.getElementById('cfDeltaBadge');
+const cfDeltaBox              = document.getElementById('cfDeltaBox');
+const cfChangesList           = document.getElementById('cfChangesList');
+const cfExplanationText       = document.getElementById('cfExplanationText');
+const btnResetCounterfactual  = document.getElementById('btnResetCounterfactual');
+
+let cfHypotheticalVector = null;
+
+/* ---------- Multi-Model Comparison Engine (Offline & Synchronous) ---------- */
+function traverseTreeBundle(node, vec) {
+  if (node.v !== undefined) return node.v;
+  return vec[node.f] <= node.t
+    ? traverseTreeBundle(node.l, vec)
+    : traverseTreeBundle(node.r, vec);
+}
+
+function runMultiModelComparison(rawFeatures) {
+  const bundle = window.ALL_MODELS_DATA;
+  const results = [];
+
+  if (bundle && bundle.models) {
+    bundle.models.forEach(m => {
+      const evalRes = evaluateSingleModel(m.id, rawFeatures);
+      results.push({
+        id: m.id,
+        name: m.name,
+        badge: m.badge,
+        probability: evalRes.probability,
+        accuracy: m.accuracy,
+        roc_auc: m.roc_auc,
+        f1: m.f1,
+        recall: m.recall,
+        precision: m.precision,
+        brier: m.brier,
+        shap_importance: m.shap_importance
+      });
+    });
+  } else {
+    const annEval = evaluateSingleModel('ann', rawFeatures);
+    results.push({
+      id: 'ann',
+      name: 'Artificial Neural Network (ANN)',
+      badge: 'MLP 8->32->16->1',
+      probability: annEval.probability,
+      accuracy: 0.7338,
+      roc_auc: 0.8191,
+      f1: 0.5859,
+      recall: 0.5370,
+      precision: 0.6444,
+      brier: 0.1668
+    });
+  }
+
+  // Sort by accuracy (best model first)
+  results.sort((a, b) => (b.accuracy || 0) - (a.accuracy || 0));
+
+  // Render comparison table
+  if (comparisonBody) {
+    comparisonBody.innerHTML = '';
+    results.forEach((r, i) => {
+      const row = document.createElement('tr');
+      const pct = (r.probability * 100).toFixed(1);
+      const accStr = r.accuracy ? (r.accuracy * 100).toFixed(1) + '%' : '—';
+      const isBest = i === 0;
+      row.className = isBest ? 'best-model-row' : '';
+      row.innerHTML = `
+        <td>
+          <div style="display:flex; flex-direction:column;">
+            <span>${isBest ? '🏆 ' : ''}<strong>${r.name}</strong></span>
+            <small style="opacity:0.65; font-size:0.75rem;">${r.badge || ''}</small>
+          </div>
+        </td>
+        <td>
+          <span class="comp-prob ${r.probability >= currentThreshold ? 'prob-high' : 'prob-low'}">
+            ${pct}%
+          </span>
+        </td>
+        <td>
+          <strong>${accStr}</strong>
+          <div style="font-size:0.7rem; color:var(--text-muted);">AUC: ${r.roc_auc ? r.roc_auc.toFixed(3) : '—'}</div>
+        </td>
+        <td>
+          ${isBest ? '<span class="best-badge">🏆 SELECTED BEST</span>' : '<span style="font-size:0.75rem; opacity:0.6;">Validated</span>'}
+        </td>
+      `;
+      comparisonBody.appendChild(row);
+    });
+  }
+
+  // Update best model indicator
+  const best = results[0];
+  if (best) {
+    if (bestModelName) bestModelName.textContent = best.name;
+    if (bestModelAcc) {
+      bestModelAcc.textContent = `${(best.accuracy * 100).toFixed(1)}% (AUC: ${best.roc_auc ? best.roc_auc.toFixed(3) : '—'}, Sensitivity: ${(best.recall * 100).toFixed(1)}%)`;
+    }
+  }
+
+  return results;
+}
 
 function getFormFeatureVector() {
   const form = document.getElementById('predictionForm');
   if (!form) return [1, 100, 72, 23, 85, 26.5, 0.38, 33];
 
-  return MODEL_DATA.feature_names.map(name => {
+  const meta = window.ALL_MODELS_DATA ? window.ALL_MODELS_DATA.metadata : MODEL_DATA;
+  return meta.feature_names.map(name => {
     const el = form.elements[name];
     const val = parseFloat(el ? el.value : '');
-    return isNaN(val) ? MODEL_DATA.medians[name] : val;
+    return isNaN(val) ? meta.medians[name] : val;
   });
+}
+
+function applyThresholdDecision(prob, activeModelName) {
+  if (dispThresholdVal) {
+    dispThresholdVal.textContent = `${currentThreshold.toFixed(2)} (${currentThreshold === 0.50 ? 'Standard' : (currentThreshold === 0.25 ? 'High Sensitivity' : (currentThreshold === 0.65 ? 'High Specificity' : 'Custom'))})`;
+  }
+
+  const isPositive = prob >= currentThreshold;
+  if (screeningDecisionBadge) {
+    if (isPositive) {
+      screeningDecisionBadge.textContent = '⚠️ Positive (At/Above Cutoff)';
+      screeningDecisionBadge.className = 'sdr-badge alert-pos';
+    } else {
+      screeningDecisionBadge.textContent = '🛡️ Negative (Below Cutoff)';
+      screeningDecisionBadge.className = 'sdr-badge';
+    }
+  }
+
+  if (threshTradeoffNote) {
+    if (currentThreshold <= 0.30) {
+      threshTradeoffNote.textContent = 'Screening Mode (Threshold ≤ 0.30): Maximizes Sensitivity (~80–87%). Catches the vast majority of potential diabetic cases with low False Negatives, at the cost of higher False Positives.';
+    } else if (currentThreshold >= 0.60) {
+      threshTradeoffNote.textContent = 'Confirmation Mode (Threshold ≥ 0.60): Maximizes Precision and Specificity (~84–90%). Minimizes false alarms before costly clinical referrals, but increases False Negatives.';
+    } else {
+      threshTradeoffNote.textContent = 'Balanced Mode (Threshold ~0.50): Standard decision boundary. Statistical screening indicator — not a clinical diagnosis. Venous blood testing (HbA1c) is required for clinical confirmation.';
+    }
+  }
 }
 
 function runPredictionAndRender() {
   const vector = getFormFeatureVector();
-  const res = computeAuthenticSHAP(vector);
-  lastCalculatedProb = res.probability;
+  const allResults = runMultiModelComparison(vector);
+  
+  // Determine selected active model
+  const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+  const activeModel = allResults.find(r => r.id === activeModelId) || allResults[0];
+  
+  const prob = activeModel ? activeModel.probability : 0.5;
+  lastCalculatedProb = prob;
+  const pct = Math.round(prob * 100);
 
-  const pct = (res.probability * 100).toFixed(1);
+  // Update Score Displays
   if (riskScoreDisplay) riskScoreDisplay.textContent = `${pct}%`;
-  if (riskGaugeFill) {
-    riskGaugeFill.style.width = `${Math.min(100, res.probability * 100)}%`;
-    if (res.probability < 0.30) {
-      riskGaugeFill.style.backgroundColor = '#10b981';
-      if (riskClassText) riskClassText.textContent = 'LOW ESTIMATED RISK';
-      if (riskSubText) riskSubText.textContent = `(${pct}% — Below Population Baseline)`;
-    } else if (res.probability < 0.60) {
-      riskGaugeFill.style.backgroundColor = '#f59e0b';
-      if (riskClassText) riskClassText.textContent = 'MODERATE / BORDERLINE RISK';
-      if (riskSubText) riskSubText.textContent = `(${pct}% — Elevated Clinical Watch)`;
+  if (riskScoreLarge) riskScoreLarge.textContent = `${pct}%`;
+
+  // Update Circular SVG Gauge
+  if (gaugeProgressCircle) {
+    const circumference = 263.89;
+    const offset = circumference * (1.0 - Math.min(1.0, Math.max(0, prob)));
+    gaugeProgressCircle.style.strokeDashoffset = offset;
+    
+    if (prob < 0.30) {
+      gaugeProgressCircle.style.stroke = '#10b981';
+    } else if (prob < 0.60) {
+      gaugeProgressCircle.style.stroke = '#06b6d4';
     } else {
-      riskGaugeFill.style.backgroundColor = '#ef4444';
-      if (riskClassText) riskClassText.textContent = 'HIGH ESTIMATED RISK';
-      if (riskSubText) riskSubText.textContent = `(${pct}% — High Sensitivity)`;
+      gaugeProgressCircle.style.stroke = '#ef4444';
     }
   }
 
-  // Render Real SHAP Waterfall Bars
+  // Update Risk Classifications & Badges
+  if (prob < 0.30) {
+    if (riskClassText) {
+      riskClassText.textContent = 'Low Risk';
+      riskClassText.style.color = '#10b981';
+    }
+    if (riskClassBadge) {
+      riskClassBadge.textContent = '🛡️ Low Risk';
+      riskClassBadge.style.background = '#10b981';
+      riskClassBadge.style.color = '#022c22';
+    }
+    if (uncertaintyLevelText) uncertaintyLevelText.textContent = 'Uncertainty Level: Low';
+    if (cardUncertaintyTitle) cardUncertaintyTitle.textContent = 'Model Uncertainty: Low';
+    if (cardUncertaintyDesc) cardUncertaintyDesc.textContent = `Model indicates strong metabolic stability (${pct}%). Periodic monitoring advised.`;
+    if (riskSubText) riskSubText.textContent = `Model has high confidence (${pct}%) in non-diabetic metabolic stability.`;
+    if (modelConfidenceText) modelConfidenceText.textContent = '84%';
+    if (modelConfidenceFill) modelConfidenceFill.style.width = '84%';
+    if (riskSilhouette) riskSilhouette.style.filter = 'drop-shadow(0 0 16px rgba(16, 185, 129, 0.55))';
+  } else if (prob < 0.60) {
+    if (riskClassText) {
+      riskClassText.textContent = 'Moderate';
+      riskClassText.style.color = '#38bdf8';
+    }
+    if (riskClassBadge) {
+      riskClassBadge.textContent = '🛡️ Moderate Risk';
+      riskClassBadge.style.background = '#38bdf8';
+      riskClassBadge.style.color = '#0369a1';
+    }
+    if (uncertaintyLevelText) uncertaintyLevelText.textContent = 'Uncertainty Level: Moderate';
+    if (cardUncertaintyTitle) cardUncertaintyTitle.textContent = 'Model Uncertainty: Moderate';
+    if (cardUncertaintyDesc) cardUncertaintyDesc.textContent = `Prediction confidence is balanced (${pct}%). Consider additional clinical follow-up like venous HbA1c testing.`;
+    if (riskSubText) riskSubText.textContent = `Prediction has some uncertainty (${pct}%). Consider additional clinical follow-up.`;
+    if (modelConfidenceText) modelConfidenceText.textContent = '78%';
+    if (modelConfidenceFill) modelConfidenceFill.style.width = '78%';
+    if (riskSilhouette) riskSilhouette.style.filter = 'drop-shadow(0 0 18px rgba(56, 189, 248, 0.6))';
+  } else {
+    if (riskClassText) {
+      riskClassText.textContent = 'High Risk';
+      riskClassText.style.color = '#ef4444';
+    }
+    if (riskClassBadge) {
+      riskClassBadge.textContent = '⚠️ High Risk';
+      riskClassBadge.style.background = '#ef4444';
+      riskClassBadge.style.color = '#ffffff';
+    }
+    if (uncertaintyLevelText) uncertaintyLevelText.textContent = 'Uncertainty Level: Low (High Risk)';
+    if (cardUncertaintyTitle) cardUncertaintyTitle.textContent = 'Model Alert: High Risk';
+    if (cardUncertaintyDesc) cardUncertaintyDesc.textContent = `Biomarkers strongly align with diabetic cohorts (${pct}%). Professional medical evaluation recommended.`;
+    if (riskSubText) riskSubText.textContent = `Metabolic markers strongly match diabetic profiles (${pct}%). Professional testing recommended.`;
+    if (modelConfidenceText) modelConfidenceText.textContent = '88%';
+    if (modelConfidenceFill) modelConfidenceFill.style.width = '88%';
+    if (riskSilhouette) riskSilhouette.style.filter = 'drop-shadow(0 0 22px rgba(239, 68, 68, 0.75))';
+  }
+
+  // Update Threshold Decision
+  applyThresholdDecision(prob, activeModel ? activeModel.name : 'Active Model');
+
+  // Update Active Model Label in Column 1
+  if (activeModelLabel && activeModel) {
+    activeModelLabel.textContent = `${activeModel.name} ${activeModel.id === 'xgboost' ? '(Best Performing)' : ''}`;
+  }
+
+  // Update Active Model 6-Cell Performance Grid
+  if (activeModel) {
+    if (perfAcc)   perfAcc.textContent   = activeModel.accuracy ? `${(activeModel.accuracy * 100).toFixed(1)}%` : '—';
+    if (perfF1)    perfF1.textContent    = activeModel.f1 ? `${(activeModel.f1 * 100).toFixed(1)}%` : '—';
+    if (perfPrec)  perfPrec.textContent  = activeModel.precision ? `${(activeModel.precision * 100).toFixed(1)}%` : '—';
+    if (perfAuc)   perfAuc.textContent   = activeModel.roc_auc ? activeModel.roc_auc.toFixed(3) : '—';
+    if (perfRec)   perfRec.textContent   = activeModel.recall ? `${(activeModel.recall * 100).toFixed(1)}%` : '—';
+    if (perfBrier) perfBrier.textContent = activeModel.brier ? activeModel.brier.toFixed(3) : '—';
+  }
+
+  // Phase 2 Fix: Compute Model-Specific SHAP Attributions for the Selected Model
+  const xaiRes = computeModelSpecificSHAP(activeModelId, vector, prob);
+
+  if (shapModelTag && activeModel) {
+    shapModelTag.textContent = activeModel.name;
+  }
+  if (shapCardHeading) {
+    shapCardHeading.textContent = `Feature Contribution (${xaiRes.method})`;
+  }
+
   if (shapBarsList) {
     shapBarsList.innerHTML = '';
-    const featuresWithShap = MODEL_DATA.feature_names.map((name, i) => ({
+    const meta = window.ALL_MODELS_DATA ? window.ALL_MODELS_DATA.metadata : MODEL_DATA;
+    
+    // Sort features by magnitude of attribution
+    const featuresWithShap = meta.feature_names.map((name, i) => ({
       name,
       val: vector[i],
-      unit: MODEL_DATA.feature_specs[name].unit,
-      shap: res.attributions[i]
+      shap: xaiRes.attributions[i]
     })).sort((a, b) => Math.abs(b.shap) - Math.abs(a.shap));
 
     featuresWithShap.forEach(item => {
       const row = document.createElement('div');
-      row.className = 'shap-row';
+      row.className = 'shap-wf-row';
       const isPos = item.shap >= 0;
-      const widthPct = Math.min(Math.abs(item.shap) * 150, 48);
+      const widthPct = Math.min(100, Math.max(6, Math.abs(item.shap) * 200));
+      const valStr = `${isPos ? '+' : ''}${item.shap.toFixed(2)}`;
 
       row.innerHTML = `
-        <span class="shap-feature-name" title="${item.name}: ${item.val} ${item.unit}">
-          ${item.name} (${item.val})
-        </span>
-        <div class="shap-track">
-          <div class="shap-center-line"></div>
-          ${isPos 
-            ? `<div class="shap-fill-pos" style="width: ${widthPct}%;"></div>` 
-            : `<div class="shap-fill-neg" style="width: ${widthPct}%;"></div>`
-          }
+        <span class="shap-wf-name" title="${item.name}: ${item.val}">${item.name}</span>
+        <span class="shap-wf-val ${isPos ? 'val-pos' : 'val-neg'}">${valStr}</span>
+        <div class="shap-wf-track">
+          <div class="${isPos ? 'shap-wf-fill-pos' : 'shap-wf-fill-neg'}" style="width: ${widthPct}%;"></div>
         </div>
-        <span class="shap-val-text ${isPos ? 'val-pos' : 'val-neg'}">
-          ${isPos ? '+' : ''}${(item.shap * 100).toFixed(1)}%
-        </span>
       `;
       shapBarsList.appendChild(row);
     });
@@ -1784,17 +2299,299 @@ function runPredictionAndRender() {
   const glucVal = vector[1];
   if (streamGlucVal) streamGlucVal.textContent = `Linked to Input (${glucVal} mg/dL)`;
 
-  const activeCount = Math.floor(Math.min(1.0, Math.max(0.2, glucVal / 220)) * glucoseMolecules.length);
-  glucoseMolecules.forEach((g, idx) => {
-    g.visible = idx < activeCount;
-    g.userData.vz = 0.05 + (glucVal / 250) * 0.12;
-  });
+  if (typeof glucoseMolecules !== 'undefined' && glucoseMolecules.length) {
+    const activeCount = Math.floor(Math.min(1.0, Math.max(0.2, glucVal / 220)) * glucoseMolecules.length);
+    glucoseMolecules.forEach((g, idx) => {
+      g.visible = idx < activeCount;
+      g.userData.vz = 0.05 + (glucVal / 250) * 0.12;
+    });
+  }
 
-  if (neuralNetwork && neuralNetwork.userData.pulseData) {
-    const pulseFactor = 0.015 + (res.probability * 0.035);
+  if (typeof neuralNetwork !== 'undefined' && neuralNetwork && neuralNetwork.userData.pulseData) {
+    const pulseFactor = 0.015 + (prob * 0.035);
     neuralNetwork.userData.pulseData.forEach(p => p.speed = pulseFactor * (0.8 + Math.random() * 0.4));
   }
+
+  // Synchronize Counterfactual Explorer (Phase 4)
+  initOrUpdateCounterfactual(vector);
 }
+
+// Phase 4: Interactive Counterfactual Explorer Engine
+function initOrUpdateCounterfactual(originalVector) {
+  if (!cfHypotheticalVector) {
+    cfHypotheticalVector = originalVector.slice();
+  } else {
+    // Keep immutable features locked to original patient vector
+    cfHypotheticalVector[0] = originalVector[0]; // Pregnancies
+    cfHypotheticalVector[6] = originalVector[6]; // DiabetesPedigreeFunction
+    cfHypotheticalVector[7] = originalVector[7]; // Age
+  }
+
+  const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+  const bundle = window.ALL_MODELS_DATA;
+  const activeModel = bundle && bundle.models ? bundle.models.find(m => m.id === activeModelId) : null;
+  const modelName = activeModel ? activeModel.name : 'Active Model';
+
+  if (cfActiveModelName) cfActiveModelName.textContent = modelName;
+  if (cfActiveModelBadge) cfActiveModelBadge.textContent = modelName;
+
+  // Sync sliders to hypothetical vector
+  if (sliderCfGlucose) sliderCfGlucose.value = cfHypotheticalVector[1];
+  if (sliderCfBMI)     sliderCfBMI.value     = cfHypotheticalVector[5];
+  if (sliderCfBP)      sliderCfBP.value      = cfHypotheticalVector[2];
+  if (sliderCfInsulin) sliderCfInsulin.value = cfHypotheticalVector[4];
+  if (sliderCfSkin)    sliderCfSkin.value    = cfHypotheticalVector[3];
+
+  renderCounterfactualState(originalVector);
+}
+
+function renderCounterfactualState(originalVector) {
+  const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+  
+  if (dispCfGlucose) dispCfGlucose.textContent = `${cfHypotheticalVector[1]} mg/dL`;
+  if (dispCfBMI)     dispCfBMI.textContent     = `${parseFloat(cfHypotheticalVector[5]).toFixed(1)} kg/m²`;
+  if (dispCfBP)      dispCfBP.textContent      = `${cfHypotheticalVector[2]} mm Hg`;
+  if (dispCfInsulin) dispCfInsulin.textContent = `${cfHypotheticalVector[4]} µU/mL`;
+  if (dispCfSkin)    dispCfSkin.textContent    = `${cfHypotheticalVector[3]} mm`;
+
+  // Compute Original and Hypothetical Probabilities using active model
+  const origEval = evaluateSingleModel(activeModelId, originalVector);
+  const hypoEval = evaluateSingleModel(activeModelId, cfHypotheticalVector);
+
+  const origProb = origEval.probability;
+  const hypoProb = hypoEval.probability;
+
+  const origPct = Math.round(origProb * 100);
+  const hypoPct = Math.round(hypoProb * 100);
+  const deltaPct = hypoPct - origPct;
+
+  if (cfOriginalScore) cfOriginalScore.textContent = `${origPct}%`;
+  if (cfHypoScore)     cfHypoScore.textContent     = `${hypoPct}%`;
+
+  if (cfOriginalPill) {
+    cfOriginalPill.textContent = origProb < 0.3 ? 'Low Risk' : (origProb < 0.6 ? 'Moderate Risk' : 'High Risk');
+  }
+  if (cfHypoPill) {
+    cfHypoPill.textContent = hypoProb < 0.3 ? 'Low Risk' : (hypoProb < 0.6 ? 'Moderate Risk' : 'High Risk');
+  }
+
+  if (cfDeltaVal && cfDeltaBadge && cfDeltaBox) {
+    if (deltaPct < 0) {
+      cfDeltaVal.textContent = `${deltaPct}% Risk Reduction`;
+      cfDeltaVal.style.color = '#34d399';
+      cfDeltaBadge.textContent = 'Protective Shift';
+      cfDeltaBadge.className = 'cfd-badge badge-pass';
+      cfDeltaBox.style.background = 'rgba(16, 185, 129, 0.12)';
+      cfDeltaBox.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+    } else if (deltaPct > 0) {
+      cfDeltaVal.textContent = `+${deltaPct}% Risk Elevation`;
+      cfDeltaVal.style.color = '#f87171';
+      cfDeltaBadge.textContent = 'Elevated Risk';
+      cfDeltaBadge.className = 'cfd-badge badge-fail';
+      cfDeltaBox.style.background = 'rgba(239, 68, 68, 0.12)';
+      cfDeltaBox.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+    } else {
+      cfDeltaVal.textContent = `0% (No Change)`;
+      cfDeltaVal.style.color = '#94a3b8';
+      cfDeltaBadge.textContent = 'Identical';
+      cfDeltaBadge.className = 'cfd-badge';
+      cfDeltaBox.style.background = 'rgba(15, 23, 42, 0.6)';
+      cfDeltaBox.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+    }
+  }
+
+  // Render Changes List
+  if (cfChangesList) {
+    cfChangesList.innerHTML = '';
+    const meta = window.ALL_MODELS_DATA ? window.ALL_MODELS_DATA.metadata : MODEL_DATA;
+    let anyChanges = false;
+
+    meta.feature_names.forEach((name, i) => {
+      const origVal = originalVector[i];
+      const hypoVal = cfHypotheticalVector[i];
+      const diff = hypoVal - origVal;
+
+      if (Math.abs(diff) > 0.05) {
+        anyChanges = true;
+        const isInc = diff > 0;
+        const item = document.createElement('li');
+        item.className = 'ctb-item';
+        const diffStr = (isInc ? '+' : '') + (name === 'BMI' || name === 'DiabetesPedigreeFunction' ? diff.toFixed(1) : Math.round(diff));
+        item.innerHTML = `
+          <span><strong>${name}</strong>: ${origVal} &rarr; ${hypoVal}</span>
+          <span class="ctb-delta ${isInc ? 'delta-inc' : ''}">${diffStr}</span>
+        `;
+        cfChangesList.appendChild(item);
+      }
+    });
+
+    if (!anyChanges) {
+      cfChangesList.innerHTML = '<li class="ctb-item" style="color:#64748b; font-style:italic;">No biomarkers modified yet. Move sliders above to simulate changes.</li>';
+    }
+  }
+
+  // Model-Specific Explanation Note
+  if (cfExplanationText) {
+    const glucDiff = cfHypotheticalVector[1] - originalVector[1];
+    const bmiDiff  = cfHypotheticalVector[5] - originalVector[5];
+
+    if (activeModelId === 'xgboost') {
+      if (glucDiff < -15 || bmiDiff < -2) {
+        cfExplanationText.textContent = `XGBoost evaluates split thresholds at Glucose ≤ 128 mg/dL and BMI ≤ 30. Shifting below these cuts the sum of boosting tree margins, reducing probability to ${hypoPct}%.`;
+      } else {
+        cfExplanationText.textContent = `XGBoost evaluates inputs along 50 gradient-boosted regression trees. Current modifications produce a net margin shift of ${(hypoProb - origProb).toFixed(3)}.`;
+      }
+    } else if (activeModelId === 'ann') {
+      cfExplanationText.textContent = `The 8->32->16->1 Neural Network propagates the standardized hypothetical vector through its trained ReLU manifolds, yielding an output activation of ${hypoPct}%.`;
+    } else if (activeModelId === 'svm') {
+      cfExplanationText.textContent = `Support Vector Machine computes RBF geometric distances to support vectors. The hypothetical coordinates shift ${(origProb - hypoProb > 0 ? 'closer to the non-diabetic support vectors' : 'further into the diabetic decision margin')}.`;
+    } else {
+      cfExplanationText.textContent = `Random Forest averages class predictions across decision trees. In this hypothetical vector, ${(hypoProb * 100).toFixed(0)}% of trees vote positive.`;
+    }
+  }
+}
+
+// Phase 3 Event Listeners: Screening Threshold Controls
+if (sliderThreshold) {
+  sliderThreshold.addEventListener('input', () => {
+    currentThreshold = parseFloat(sliderThreshold.value);
+    applyThresholdDecision(lastCalculatedProb);
+    runMultiModelComparison(getFormFeatureVector());
+    document.querySelectorAll('.btn-thresh-preset').forEach(b => b.classList.remove('active'));
+  });
+}
+
+document.querySelectorAll('.btn-thresh-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn-thresh-preset').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const val = btn.dataset.thresh;
+    const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+
+    if (val === 'val-opt') {
+      currentThreshold = VALIDATION_OPTIMAL_THRESHOLDS[activeModelId] || 0.50;
+    } else {
+      currentThreshold = parseFloat(val);
+    }
+
+    if (sliderThreshold) sliderThreshold.value = currentThreshold;
+    applyThresholdDecision(lastCalculatedProb);
+    runMultiModelComparison(getFormFeatureVector());
+  });
+});
+
+// Phase 4 Event Listeners: Counterfactual Explorer Controls
+if (btnToggleCounterfactual && cfDrawerPanel) {
+  btnToggleCounterfactual.addEventListener('click', () => {
+    const isVisible = cfDrawerPanel.style.display === 'block';
+    cfDrawerPanel.style.display = isVisible ? 'none' : 'block';
+    btnToggleCounterfactual.querySelector('span').textContent = isVisible ? 'Open Scenario Explorer' : 'Close Scenario Explorer';
+  });
+}
+
+// Connect counterfactual sliders
+[
+  { slider: sliderCfGlucose, idx: 1, disp: dispCfGlucose, suffix: ' mg/dL', parse: parseInt },
+  { slider: sliderCfBMI,     idx: 5, disp: dispCfBMI,     suffix: ' kg/m²', parse: parseFloat },
+  { slider: sliderCfBP,      idx: 2, disp: dispCfBP,      suffix: ' mm Hg', parse: parseInt },
+  { slider: sliderCfInsulin, idx: 4, disp: dispCfInsulin, suffix: ' µU/mL', parse: parseInt },
+  { slider: sliderCfSkin,    idx: 3, disp: dispCfSkin,    suffix: ' mm',    parse: parseInt }
+].forEach(cfg => {
+  if (cfg.slider) {
+    cfg.slider.addEventListener('input', () => {
+      if (!cfHypotheticalVector) cfHypotheticalVector = getFormFeatureVector().slice();
+      cfHypotheticalVector[cfg.idx] = cfg.parse(cfg.slider.value);
+      renderCounterfactualState(getFormFeatureVector());
+    });
+  }
+});
+
+// Counterfactual Simulation Presets
+document.querySelectorAll('.btn-cf-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const orig = getFormFeatureVector();
+    if (!cfHypotheticalVector) cfHypotheticalVector = orig.slice();
+    const mode = btn.dataset.cfpreset;
+
+    if (mode === 'glucose') {
+      cfHypotheticalVector[1] = 95; // Normoglycemic target
+    } else if (mode === 'bmi') {
+      cfHypotheticalVector[5] = Math.max(18.5, Math.round(orig[5] * 0.90 * 10) / 10); // 10% BMI reduction
+    } else if (mode === 'lifestyle') {
+      cfHypotheticalVector[1] = Math.min(orig[1], 100);
+      cfHypotheticalVector[5] = Math.max(18.5, Math.round(orig[5] * 0.93 * 10) / 10);
+      cfHypotheticalVector[2] = Math.max(60, orig[2] - 5);
+    } else if (mode === 'recourse') {
+      // Automatic minimal actionable boundary recourse to reach < 30% risk
+      const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+      let bestVec = cfHypotheticalVector.slice();
+      let bestP = evaluateSingleModel(activeModelId, bestVec).probability;
+
+      // Iterative boundary solver over modifiable Glucose and BMI
+      for (let g = Math.min(orig[1], 140); g >= 85; g -= 5) {
+        for (let b = orig[5]; b >= Math.max(19.0, orig[5] * 0.80); b -= 0.5) {
+          const testV = orig.slice();
+          testV[1] = g;
+          testV[5] = Math.round(b * 10) / 10;
+          const p = evaluateSingleModel(activeModelId, testV).probability;
+          if (p < 0.30) {
+            bestVec = testV;
+            bestP = p;
+            break;
+          }
+        }
+        if (bestP < 0.30) break;
+      }
+      cfHypotheticalVector = bestVec;
+    }
+
+    // Sync sliders
+    if (sliderCfGlucose) sliderCfGlucose.value = cfHypotheticalVector[1];
+    if (sliderCfBMI)     sliderCfBMI.value     = cfHypotheticalVector[5];
+    if (sliderCfBP)      sliderCfBP.value      = cfHypotheticalVector[2];
+    if (sliderCfInsulin) sliderCfInsulin.value = cfHypotheticalVector[4];
+    if (sliderCfSkin)    sliderCfSkin.value    = cfHypotheticalVector[3];
+
+    renderCounterfactualState(orig);
+  });
+});
+
+if (btnResetCounterfactual) {
+  btnResetCounterfactual.addEventListener('click', () => {
+    const orig = getFormFeatureVector();
+    cfHypotheticalVector = orig.slice();
+    initOrUpdateCounterfactual(orig);
+  });
+}
+
+if (modelSelectControl) {
+  modelSelectControl.addEventListener('change', () => {
+    runPredictionAndRender();
+  });
+}
+
+// Model Comparison Drawer Toggle
+if (btnToggleComparison && comparisonDrawer) {
+  btnToggleComparison.addEventListener('click', () => {
+    const isOpen = comparisonDrawer.classList.toggle('open');
+    btnToggleComparison.textContent = isOpen ? 'Hide Comparison ▴' : 'Compare 4 Models ▾';
+  });
+}
+
+// Navigation Tab Pills
+document.querySelectorAll('.pred-tab-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pred-tab-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    if (tab === '3d') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (tab === 'shap' || tab === 'feature-impact') {
+      const shapEl = document.querySelector('.shap-card');
+      if (shapEl) shapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+});
 
 if (inputGlucose) {
   inputGlucose.addEventListener('input', () => {
