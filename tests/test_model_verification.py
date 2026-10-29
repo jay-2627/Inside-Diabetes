@@ -1,10 +1,10 @@
 """
-Inside Diabetes — Dual-Model (ANN & SVM) Systems Verification Test Suite
+Inside Diabetes — Pure ANN Systems Verification Test Suite
 Tests:
-1. Model loading & artifact integrity (ANN & SVM)
+1. Model loading & artifact integrity (ANN)
 2. ANN 8 -> 32 -> 16 -> 1 architecture verification
 3. Input validation & zero-handling
-4. Python vs JavaScript prediction consistency for ANN and SVM
+4. Python vs JavaScript prediction consistency for ANN
 5. Threshold handling & validation-derived presets
 6. Counterfactual explorer constraints & immutable feature locking
 """
@@ -21,16 +21,14 @@ WEBSITE_DIR = os.path.join(BASE_DIR, 'website')
 
 def test_1_model_loading_and_architecture():
     print("=" * 70)
-    print("TEST 1: MODEL LOADING & ARTIFACT INTEGRITY (ANN & SVM)")
+    print("TEST 1: MODEL LOADING & ARTIFACT INTEGRITY (PURE ANN)")
     print("=" * 70)
     
-    svm_path = os.path.join(MODEL_DIR, 'svm_model.pkl')
     ann_path = os.path.join(MODEL_DIR, 'diabetes_ann.pkl')
     scaler_path = os.path.join(MODEL_DIR, 'scaler.pkl')
     medians_path = os.path.join(MODEL_DIR, 'medians.json')
     bundle_path = os.path.join(WEBSITE_DIR, 'models_bundle.js')
     
-    assert os.path.exists(svm_path), "SVM pickle missing"
     assert os.path.exists(ann_path), "ANN pickle missing"
     assert os.path.exists(scaler_path), "Scaler pickle missing"
     assert os.path.exists(medians_path), "Medians JSON missing"
@@ -68,10 +66,9 @@ def test_2_input_validation_and_imputation():
 
 def test_3_python_js_numerical_parity():
     print("\n" + "=" * 70)
-    print("TEST 3: PYTHON VS JAVASCRIPT PREDICTION NUMERICAL CONSISTENCY (ANN & SVM)")
+    print("TEST 3: PYTHON VS JAVASCRIPT PREDICTION NUMERICAL CONSISTENCY (ANN)")
     print("=" * 70)
     
-    svm_model = joblib.load(os.path.join(MODEL_DIR, 'svm_model.pkl'))
     ann_model = joblib.load(os.path.join(MODEL_DIR, 'diabetes_ann.pkl'))
     scaler    = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
     
@@ -80,7 +77,7 @@ def test_3_python_js_numerical_parity():
     data_str = text.split('window.ALL_MODELS_DATA = ')[1].split(';\n')[0]
     bundle = json.loads(data_str)
     
-    def js_evaluate(model_id, raw_vec):
+    def js_evaluate_ann(raw_vec):
         meta = bundle['metadata']
         medians = meta['medians']
         mean = meta['scaler_mean']
@@ -95,24 +92,14 @@ def test_3_python_js_numerical_parity():
                 imputed.append(v)
                 
         scaled = [(imputed[i] - mean[i]) / std[i] for i in range(8)]
-        m = [mod for mod in bundle['models'] if mod['id'] == model_id][0]
+        m = bundle['models'][0]
         
-        if m['type'] == 'svm_rbf':
-            df = m['intercept']
-            gamma = m['gamma']
-            for i, sv in enumerate(m['support_vectors']):
-                dist_sq = sum((scaled[j] - sv[j])**2 for j in range(8))
-                df += m['dual_coef'][i] * math.exp(-gamma * dist_sq)
-            a = m.get('platt_a', 1.32367218)
-            b = m.get('platt_b', -0.56986700)
-            return 1.0 / (1.0 + math.exp(-(a * df + b)))
-        elif m['type'] == 'ann_mlp':
-            W1, W2, W3 = m['weights']
-            b1, b2, b3 = m['biases']
-            h1 = [max(0, b1[j] + sum(scaled[i]*W1[i][j] for i in range(8))) for j in range(len(b1))]
-            h2 = [max(0, b2[k] + sum(h1[j]*W2[j][k] for j in range(len(h1)))) for k in range(len(b2))]
-            logit = b3[0] + sum(h2[k]*W3[k][0] for k in range(len(h2)))
-            return 1.0 / (1.0 + math.exp(-max(-25, min(25, logit))))
+        W1, W2, W3 = m['weights']
+        b1, b2, b3 = m['biases']
+        h1 = [max(0, b1[j] + sum(scaled[i]*W1[i][j] for i in range(8))) for j in range(len(b1))]
+        h2 = [max(0, b2[k] + sum(h1[j]*W2[j][k] for j in range(len(h1)))) for k in range(len(b2))]
+        logit = b3[0] + sum(h2[k]*W3[k][0] for k in range(len(h2)))
+        return 1.0 / (1.0 + math.exp(-max(-25, min(25, logit))))
 
     test_cases = [
         ('Healthy Baseline', [1, 85, 68, 18, 65, 21.8, 0.22, 25]),
@@ -122,10 +109,10 @@ def test_3_python_js_numerical_parity():
         ('Missing Imputed',  [2, 0, 0, 0, 0, 0, 0.38, 33])
     ]
 
-    print(f"{'Case':18s} | {'Model':8s} | {'Python':8s} | {'JavaScript':10s} | {'Abs Delta':10s}")
-    print("-" * 65)
+    print(f"{'Case':18s} | {'Python':8s} | {'JavaScript':10s} | {'Abs Delta':10s}")
+    print("-" * 55)
 
-    max_deltas = {'svm': 0, 'ann': 0}
+    max_delta = 0.0
 
     for case_name, raw in test_cases:
         x_arr = np.array([raw], dtype=float)
@@ -134,45 +121,32 @@ def test_3_python_js_numerical_parity():
                 x_arr[0, i] = bundle['metadata']['medians'][name]
                 
         x_scaled = scaler.transform(x_arr)
-        
-        py_preds = {
-            'svm': float(svm_model.predict_proba(x_scaled)[0, 1]),
-            'ann': float(ann_model.predict_proba(x_scaled)[0, 1])
-        }
+        py_p = float(ann_model.predict_proba(x_scaled)[0, 1])
+        js_p = js_evaluate_ann(raw)
+        delta = abs(py_p - js_p)
+        max_delta = max(max_delta, delta)
+        print(f"{case_name:18s} | {py_p:8.4f} | {js_p:10.4f} | {delta:10.6f}")
 
-        for m_id in ['svm', 'ann']:
-            js_p = js_evaluate(m_id, raw)
-            delta = abs(py_preds[m_id] - js_p)
-            max_deltas[m_id] = max(max_deltas[m_id], delta)
-            print(f"{case_name:18s} | {m_id:8s} | {py_preds[m_id]:8.4f} | {js_p:10.4f} | {delta:10.6f}")
-
-    print("-" * 65)
-    print("Maximum Numerical Prediction Discrepancies:")
-    print(f"  - ANN (MLP): {max_deltas['ann']:.6f} (Perfect Match)")
-    print(f"  - SVM (RBF): {max_deltas['svm']:.6f} (Exact Kernel Match)")
-    
-    assert max_deltas['ann'] < 1e-6, "ANN delta too large"
-    assert max_deltas['svm'] < 0.01, "SVM delta too large"
-    print("  [PASS] Dual-model numerical consistency verified.")
+    print("-" * 55)
+    print(f"Maximum Numerical Discrepancy for ANN: {max_delta:.8f} (Exact Parity)")
+    assert max_delta < 1e-6, "ANN numerical delta exceeds tolerance"
+    print("  [PASS] ANN numerical consistency verified.")
 
 def test_4_threshold_handling_and_tradeoffs():
     print("\n" + "=" * 70)
     print("TEST 4: CLINICAL SCREENING THRESHOLD HANDLING & VALIDATION PRESETS")
     print("=" * 70)
     
-    val_optimal = {
-        'svm': 0.25,
-        'ann': 0.25
-    }
-    
-    svm_p = 0.388
-    dec_50 = svm_p >= 0.50
-    dec_opt = svm_p >= val_optimal['svm']
+    opt_thresh = 0.25
+    # Borderline patient
+    p = 0.361
+    dec_50 = p >= 0.50
+    dec_opt = p >= opt_thresh
     
     assert dec_50 == False, "Decision at 0.50 should be False"
     assert dec_opt == True, "Decision at 0.25 should be True"
     print(f"  [PASS] At threshold 0.50: decision is False (missed). At screening threshold 0.25: decision is True (detected).")
-    print(f"  [PASS] Validation presets validated: SVM={val_optimal['svm']}, ANN={val_optimal['ann']}")
+    print(f"  [PASS] Validation preset validated: ANN threshold = {opt_thresh}")
 
 def test_5_counterfactual_explorer_constraints():
     print("\n" + "=" * 70)
@@ -198,5 +172,5 @@ if __name__ == '__main__':
     test_4_threshold_handling_and_tradeoffs()
     test_5_counterfactual_explorer_constraints()
     print("\n" + "=" * 70)
-    print("ALL DUAL-MODEL (ANN & SVM) VERIFICATION TESTS PASSED SUCCESSFULLY! (5/5)")
+    print("ALL PURE ANN VERIFICATION TESTS PASSED SUCCESSFULLY! (5/5)")
     print("=" * 70)

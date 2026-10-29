@@ -1740,7 +1740,7 @@ function forwardPassANN(zInput, weightsOverride, biasesOverride) {
   return { prob, logit, h1, h2 };
 }
 
-// Universal Model Evaluator across Verified Dual-Model Architectures (ANN & SVM)
+// Universal Model Evaluator across Verified Architecture (Pure ANN)
 function evaluateSingleModel(modelId, rawFeatures) {
   const bundle = window.ALL_MODELS_DATA;
   const meta = bundle ? bundle.metadata : MODEL_DATA;
@@ -1759,39 +1759,17 @@ function evaluateSingleModel(modelId, rawFeatures) {
 
   const scaled = imputed.map((v, i) => (v - mean[i]) / (std[i] || 1));
 
-  if (!bundle || !bundle.models) {
-    const annRes = forwardPassANN(scaled);
-    return { probability: annRes.prob, logit: annRes.logit };
-  }
-
-  const model = bundle.models.find(m => m.id === modelId) || bundle.models[0];
-
-  if (model.type === 'svm_rbf') {
-    let df = model.intercept;
-    const gamma = model.gamma;
-    for (let i = 0; i < model.support_vectors.length; i++) {
-      const sv = model.support_vectors[i];
-      let distSq = 0;
-      for (let j = 0; j < 8; j++) {
-        const diff = scaled[j] - sv[j];
-        distSq += diff * diff;
-      }
-      df += model.dual_coef[i] * Math.exp(-gamma * distSq);
-    }
-    const a = model.platt_a !== undefined ? model.platt_a : 1.32367218;
-    const b = model.platt_b !== undefined ? model.platt_b : -0.56986700;
-    const prob = 1.0 / (1.0 + Math.exp(-(a * df + b)));
-    return { probability: Math.max(0, Math.min(1, prob)), decisionFunction: df };
-  } else if (model.type === 'ann_mlp') {
-    const annModel = getANNModelData();
-    const annRes = forwardPassANN(scaled, (model && model.weights) ? model.weights : annModel.weights, (model && model.biases) ? model.biases : annModel.biases);
-    return { probability: annRes.prob, logit: annRes.logit };
-  }
-
-  return { probability: 0.5 };
+  const annModel = getANNModelData();
+  const model = (bundle && bundle.models) ? bundle.models.find(m => m.id === 'ann') || bundle.models[0] : null;
+  const annRes = forwardPassANN(
+    scaled,
+    (model && model.weights) ? model.weights : annModel.weights,
+    (model && model.biases) ? model.biases : annModel.biases
+  );
+  return { probability: annRes.prob, logit: annRes.logit };
 }
 
-// Model-Specific Explanations (Integrated Gradients for ANN, Kernel Perturbation for SVM)
+// Model-Specific Explanations (Pure ANN Integrated Gradients)
 function computeModelSpecificSHAP(activeModelId, rawFeatures, currentProb) {
   const meta = window.ALL_MODELS_DATA ? window.ALL_MODELS_DATA.metadata : MODEL_DATA;
   const featureNames = meta.feature_names;
@@ -1806,61 +1784,36 @@ function computeModelSpecificSHAP(activeModelId, rawFeatures, currentProb) {
       ? (medians[fName] !== undefined ? medians[fName] : val) : (isNaN(val) ? 0 : val);
   });
 
-  if (activeModelId === 'ann') {
-    // True Integrated Gradients over the verified 8 -> 32 -> 16 -> 1 ANN architecture
-    const annModel = getANNModelData();
-    const mean = meta.scaler_mean;
-    const std = meta.scaler_std;
-    const zVector = cleanVector.map((val, i) => (val - mean[i]) / (std[i] || 1));
-    const steps = 8;
-    const rawAttributions = new Array(8).fill(0);
-    const eps = 1e-4;
+  // True Integrated Gradients over the verified 8 -> 32 -> 16 -> 1 ANN architecture
+  const annModel = getANNModelData();
+  const mean = meta.scaler_mean;
+  const std = meta.scaler_std;
+  const zVector = cleanVector.map((val, i) => (val - mean[i]) / (std[i] || 1));
+  const steps = 8;
+  const rawAttributions = new Array(8).fill(0);
+  const eps = 1e-4;
 
-    for (let s = 1; s <= steps; s++) {
-      const alpha = s / steps;
-      const zStep = zVector.map(z => z * alpha);
-      const baseP = forwardPassANN(zStep, annModel.weights, annModel.biases).prob;
+  for (let s = 1; s <= steps; s++) {
+    const alpha = s / steps;
+    const zStep = zVector.map(z => z * alpha);
+    const baseP = forwardPassANN(zStep, annModel.weights, annModel.biases).prob;
 
-      for (let i = 0; i < 8; i++) {
-        const zPerturbed = zStep.slice();
-        zPerturbed[i] += eps;
-        const pertP = forwardPassANN(zPerturbed, annModel.weights, annModel.biases).prob;
-        const grad = (pertP - baseP) / eps;
-        rawAttributions[i] += grad * zVector[i];
-      }
-    }
-    for (let i = 0; i < 8; i++) rawAttributions[i] /= steps;
-    const sumRaw = rawAttributions.reduce((a, b) => a + b, 0);
-    const attributions = rawAttributions.map(a => Math.abs(sumRaw) > 1e-6 ? (a / sumRaw) * deltaTotal : a);
-    return {
-      attributions,
-      method: 'ANN Integrated Gradients',
-      modelName: 'Artificial Neural Network'
-    };
-  } else {
-    // SVM Decision Manifold Kernel Perturbation
-    const rawDeltas = new Array(8).fill(0);
     for (let i = 0; i < 8; i++) {
-      const modifiedVec = rawFeatures.slice();
-      modifiedVec[i] = medians[featureNames[i]];
-      const modProb = evaluateSingleModel(activeModelId, modifiedVec).probability;
-      rawDeltas[i] = currentProb - modProb;
+      const zPerturbed = zStep.slice();
+      zPerturbed[i] += eps;
+      const pertP = forwardPassANN(zPerturbed, annModel.weights, annModel.biases).prob;
+      const grad = (pertP - baseP) / eps;
+      rawAttributions[i] += grad * zVector[i];
     }
-
-    const sumDeltas = rawDeltas.reduce((a, b) => a + b, 0);
-    const attributions = rawDeltas.map(d => {
-      if (Math.abs(sumDeltas) > 1e-6) {
-        return (d / sumDeltas) * deltaTotal;
-      }
-      return 0;
-    });
-
-    return {
-      attributions,
-      method: 'Kernel Perturbation',
-      modelName: 'Support Vector Machine'
-    };
   }
+  for (let i = 0; i < 8; i++) rawAttributions[i] /= steps;
+  const sumRaw = rawAttributions.reduce((a, b) => a + b, 0);
+  const attributions = rawAttributions.map(a => Math.abs(sumRaw) > 1e-6 ? (a / sumRaw) * deltaTotal : a);
+  return {
+    attributions,
+    method: 'ANN Integrated Gradients',
+    modelName: 'Artificial Neural Network'
+  };
 }
 
 function computeAuthenticSHAP(rawVector) {
@@ -1914,8 +1867,7 @@ const threshTradeoffNote      = document.getElementById('threshTradeoffNote');
 
 let currentThreshold = 0.50;
 const VALIDATION_OPTIMAL_THRESHOLDS = {
-  ann: 0.25,
-  svm: 0.25
+  ann: 0.25
 };
 
 // Phase 4: Interactive Counterfactual Explorer DOM Elements
@@ -2360,11 +2312,7 @@ function renderCounterfactualState(originalVector) {
     const glucDiff = cfHypotheticalVector[1] - originalVector[1];
     const bmiDiff  = cfHypotheticalVector[5] - originalVector[5];
 
-    if (activeModelId === 'ann') {
-      cfExplanationText.textContent = `The 8->32->16->1 Neural Network propagates the standardized hypothetical vector through its trained ReLU manifolds, yielding an output activation of ${hypoPct}%.`;
-    } else {
-      cfExplanationText.textContent = `Support Vector Machine computes RBF geometric distances to support vectors. The hypothetical coordinates shift ${(origProb - hypoProb > 0 ? 'closer to the non-diabetic support vectors' : 'further into the diabetic decision margin')}.`;
-    }
+    cfExplanationText.textContent = `The 8->32->16->1 Neural Network propagates the standardized hypothetical vector through its trained ReLU manifolds, yielding an output activation of ${hypoPct}%.`;
   }
 }
 
@@ -2491,7 +2439,7 @@ if (modelSelectControl) {
 if (btnToggleComparison && comparisonDrawer) {
   btnToggleComparison.addEventListener('click', () => {
     const isOpen = comparisonDrawer.classList.toggle('open');
-    btnToggleComparison.textContent = isOpen ? 'Hide Comparison ▴' : 'Compare Models (ANN vs SVM) ▾';
+    btnToggleComparison.textContent = isOpen ? 'Hide Architecture ▴' : 'View Model Architecture ▾';
   });
 }
 

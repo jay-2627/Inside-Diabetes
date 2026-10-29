@@ -1,7 +1,7 @@
 """
-Inside Diabetes — Python vs. JavaScript Dual-Model (ANN & SVM) Parity Verifier
-Compares predictions from trained Python models (.pkl) with the client-side
-JavaScript bundle (window.ALL_MODELS_DATA) across 20 diverse clinical test inputs.
+Inside Diabetes — Python vs. JavaScript Pure ANN Parity Verifier
+Compares predictions from trained Python ANN model (diabetes_ann.pkl) with the
+client-side JavaScript bundle across 20 diverse clinical test inputs.
 """
 
 import os
@@ -9,7 +9,6 @@ import json
 import math
 import joblib
 import numpy as np
-import pandas as pd
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(BASE_DIR, 'model')
@@ -17,11 +16,10 @@ WEBSITE_DIR = os.path.join(BASE_DIR, 'website')
 
 def run_parity_check():
     print("=" * 80)
-    print("INSIDE DIABETES: PYTHON VS JAVASCRIPT PREDICTION PARITY CHECK (ANN & SVM - 20 INPUTS)")
+    print("INSIDE DIABETES: PYTHON VS JAVASCRIPT PREDICTION PARITY CHECK (PURE ANN - 20 INPUTS)")
     print("=" * 80)
 
-    # 1. Load Python models & artifacts
-    svm_model = joblib.load(os.path.join(MODEL_DIR, 'svm_model.pkl'))
+    # 1. Load Python model & scaler
     ann_model = joblib.load(os.path.join(MODEL_DIR, 'diabetes_ann.pkl'))
     scaler    = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
 
@@ -36,8 +34,8 @@ def run_parity_check():
 
     feature_names = bundle['metadata']['feature_names']
 
-    # 3. JS Emulation Functions
-    def evaluate_js_model(model_id, raw_vec):
+    # 3. JS Emulation Function for ANN
+    def evaluate_js_ann(raw_vec):
         b_meta = bundle['metadata']
         b_medians = b_meta['medians']
         b_mean = b_meta['scaler_mean']
@@ -52,25 +50,14 @@ def run_parity_check():
                 imputed.append(v)
 
         scaled = [(imputed[i] - b_mean[i]) / b_std[i] for i in range(8)]
-        m = [mod for mod in bundle['models'] if mod['id'] == model_id][0]
+        m = bundle['models'][0]
 
-        if m['type'] == 'svm_rbf':
-            df = m['intercept']
-            gamma = m['gamma']
-            for i, sv in enumerate(m['support_vectors']):
-                dist_sq = sum((scaled[j] - sv[j]) ** 2 for j in range(8))
-                df += m['dual_coef'][i] * math.exp(-gamma * dist_sq)
-            a = m.get('platt_a', 1.32367218)
-            b = m.get('platt_b', -0.56986700)
-            return 1.0 / (1.0 + math.exp(-(a * df + b)))
-        elif m['type'] == 'ann_mlp':
-            W1, W2, W3 = m['weights']
-            b1, b2, b3 = m['biases']
-            h1 = [max(0.0, b1[j] + sum(scaled[i] * W1[i][j] for i in range(8))) for j in range(len(b1))]
-            h2 = [max(0.0, b2[k] + sum(h1[j] * W2[j][k] for j in range(len(h1)))) for k in range(len(b2))]
-            logit = b3[0] + sum(h2[k] * W3[k][0] for k in range(len(h2)))
-            return 1.0 / (1.0 + math.exp(-max(-25.0, min(25.0, logit))))
-        return 0.5
+        W1, W2, W3 = m['weights']
+        b1, b2, b3 = m['biases']
+        h1 = [max(0.0, b1[j] + sum(scaled[i] * W1[i][j] for i in range(8))) for j in range(len(b1))]
+        h2 = [max(0.0, b2[k] + sum(h1[j] * W2[j][k] for j in range(len(h1)))) for k in range(len(b2))]
+        logit = b3[0] + sum(h2[k] * W3[k][0] for k in range(len(h2)))
+        return 1.0 / (1.0 + math.exp(-max(-25.0, min(25.0, logit))))
 
     # 4. Generate 20 diverse test inputs
     test_cases = [
@@ -96,16 +83,10 @@ def run_parity_check():
         ("Athletic Low Risk",   [0, 80, 62, 14, 55, 19.8, 0.15, 22])
     ]
 
-    models_list = ['ann', 'svm']
-    model_labels = {
-        'ann': 'ANN (8->32->16->1)',
-        'svm': 'SVM (Fitted Platt)'
-    }
+    max_diff = 0.0
 
-    max_diffs = {m: 0.0 for m in models_list}
-
-    print(f"\n{'Test Case':22s} | {'Model':8s} | {'Py Prob':9s} | {'JS Prob':9s} | {'Delta':10s}")
-    print("-" * 65)
+    print(f"\n{'Test Case':22s} | {'Py Prob':9s} | {'JS Prob':9s} | {'Delta':10s}")
+    print("-" * 55)
 
     for case_name, raw in test_cases:
         x_raw = np.array([raw], dtype=float)
@@ -115,25 +96,16 @@ def run_parity_check():
                 x_py[0, i] = medians[name]
         x_py_scaled = scaler.transform(x_py)
 
-        py_probs = {
-            'ann': float(ann_model.predict_proba(x_py_scaled)[0, 1]),
-            'svm': float(svm_model.predict_proba(x_py_scaled)[0, 1])
-        }
-
-        for m_id in models_list:
-            js_p = evaluate_js_model(m_id, raw)
-            diff = abs(py_probs[m_id] - js_p)
-            max_diffs[m_id] = max(max_diffs[m_id], diff)
-            print(f"{case_name:22s} | {m_id:8s} | {py_probs[m_id]:9.4f} | {js_p:9.4f} | {diff:10.6f}")
+        py_prob = float(ann_model.predict_proba(x_py_scaled)[0, 1])
+        js_prob = evaluate_js_ann(raw)
+        diff = abs(py_prob - js_prob)
+        max_diff = max(max_diff, diff)
+        print(f"{case_name:22s} | {py_prob:9.4f} | {js_prob:9.4f} | {diff:10.6f}")
 
     print("\n" + "=" * 80)
-    print("PARITY CHECK SUMMARY (MAX ABSOLUTE DISCREPANCIES ACROSS 20 CLINICAL PROFILES):")
-    for m_id in models_list:
-        print(f"  - {model_labels[m_id]:26s}: Max Abs Diff = {max_diffs[m_id]:.8f}")
-
-    assert max_diffs['ann'] < 1e-5, f"ANN disparity too high: {max_diffs['ann']}"
-    assert max_diffs['svm'] < 0.01, f"SVM disparity too high: {max_diffs['svm']}"
-    print("\n[SUCCESS] PERFECT NUMERICAL PARITY CONFIRMED BETWEEN PYTHON AND CLIENT-SIDE JAVASCRIPT!")
+    print(f"PARITY CHECK SUMMARY: Maximum Discrepancy = {max_diff:.8f}")
+    assert max_diff < 1e-6, f"ANN disparity too high: {max_diff}"
+    print("[SUCCESS] PERFECT NUMERICAL PARITY CONFIRMED BETWEEN PYTHON AND CLIENT-SIDE JAVASCRIPT!")
     print("=" * 80)
 
 if __name__ == '__main__':

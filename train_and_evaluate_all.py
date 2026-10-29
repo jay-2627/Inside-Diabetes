@@ -1,10 +1,9 @@
 """
-Inside Diabetes — Dual Model Training, Cross-Validation, Held-Out Test Evaluation,
-XAI Computation, and Web Bundle Export Pipeline.
+Inside Diabetes — Pure Artificial Neural Network (ANN) Training, Cross-Validation,
+Held-Out Test Evaluation, Integrated Gradients XAI, and Web Bundle Export Pipeline.
 
-Models Preserved:
-1. Artificial Neural Network (MLP: 8 -> 32 -> 16 -> 1, Sigmoid)
-2. Support Vector Machine (SVM with RBF Kernel & Platt Probability Calibration)
+Model:
+Artificial Neural Network (Deep MLP: 8 -> 32 -> 16 -> 1, Sigmoid)
 """
 
 import os
@@ -14,7 +13,6 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold, train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
@@ -109,8 +107,8 @@ def run_experiment():
     print("=" * 70)
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
     
-    # 1. Artificial Neural Network (ANN: MLP 8 -> 32 -> 16 -> 1)
-    print("\n[1/2] Tuning & Cross-Validating Artificial Neural Network (ANN)...", flush=True)
+    # Artificial Neural Network (ANN: MLP 8 -> 32 -> 16 -> 1)
+    print("\nTuning & Cross-Validating Artificial Neural Network (ANN)...", flush=True)
     mlp_base = MLPClassifier(
         random_state=RANDOM_SEED,
         max_iter=1000,
@@ -131,23 +129,8 @@ def run_experiment():
     print(f"  Best ANN Params: {mlp_grid.best_params_}", flush=True)
     print(f"  Best 5-Fold Mean CV ROC-AUC: {mlp_grid.best_score_:.4f}", flush=True)
     
-    # 2. Support Vector Machine (SVM with RBF Kernel & Platt Scaling)
-    print("\n[2/2] Tuning & Cross-Validating Support Vector Machine (SVM)...", flush=True)
-    svm_base = SVC(probability=True, random_state=RANDOM_SEED, class_weight='balanced')
-    svm_param_grid = {
-        'C': [0.5, 1.0, 5.0],
-        'gamma': ['scale', 0.05],
-        'kernel': ['rbf']
-    }
-    svm_grid = GridSearchCV(svm_base, svm_param_grid, cv=cv, scoring='roc_auc', n_jobs=1)
-    svm_grid.fit(X_train_scaled, y_train)
-    best_svm = svm_grid.best_estimator_
-    print(f"  Best SVM Params: {svm_grid.best_params_}", flush=True)
-    print(f"  Best 5-Fold Mean CV ROC-AUC: {svm_grid.best_score_:.4f}", flush=True)
-    
     models = {
-        'Artificial Neural Network': (best_mlp, X_train_scaled, X_test_scaled),
-        'Support Vector Machine': (best_svm, X_train_scaled, X_test_scaled)
+        'Artificial Neural Network': (best_mlp, X_train_scaled, X_test_scaled)
     }
     
     # Find optimal threshold using training cross-validation
@@ -235,17 +218,16 @@ def run_experiment():
     print("PHASE 4: SAVING ARTIFACTS & WEB DEPLOYMENT BUNDLE")
     print("=" * 70)
     
-    joblib.dump(best_svm, os.path.join(MODEL_DIR, 'svm_model.pkl'))
     joblib.dump(best_mlp, os.path.join(MODEL_DIR, 'diabetes_ann.pkl'))
     joblib.dump(scaler, os.path.join(MODEL_DIR, 'scaler.pkl'))
     
     with open(os.path.join(MODEL_DIR, 'medians.json'), 'w') as f:
         json.dump(train_medians, f, indent=2)
         
-    print("Saved active Python models (diabetes_ann.pkl, svm_model.pkl).")
+    print("Saved active Python model (diabetes_ann.pkl).")
     
-    # Clean up deprecated model files if present
-    for old_file in ['xgboost_model.pkl', 'rf_model.pkl', 'gb_model.pkl', 'gradient_boosting_calibrated.json']:
+    # Clean up deprecated model files if present (including svm)
+    for old_file in ['svm_model.pkl', 'xgboost_model.pkl', 'rf_model.pkl', 'gb_model.pkl', 'gradient_boosting_calibrated.json']:
         old_path = os.path.join(MODEL_DIR, old_file)
         if os.path.exists(old_path):
             try:
@@ -273,18 +255,6 @@ def run_experiment():
         global_importances_ann[col] = float(grad)
     tot_imp = sum(global_importances_ann.values())
     ann_shap_pct = {k: round((v / tot_imp) * 100, 1) for k, v in global_importances_ann.items()}
-    
-    # Global SVM sensitivity calculation
-    global_importances_svm = {}
-    base_eval_svm = best_svm.predict_proba(X_eval)[:, 1]
-    for i, col in enumerate(FEATURE_NAMES):
-        X_plus = X_eval.copy()
-        X_plus[:, i] += eps
-        probs_plus = best_svm.predict_proba(X_plus)[:, 1]
-        grad = np.mean(np.abs((probs_plus - base_eval_svm) / eps))
-        global_importances_svm[col] = float(grad)
-    tot_imp_svm = sum(global_importances_svm.values())
-    svm_shap_pct = {k: round((v / tot_imp_svm) * 100, 1) for k, v in global_importances_svm.items()}
     
     ann_payload = {
         'model_name': 'Explainable Feedforward ANN (MLP)',
@@ -315,15 +285,7 @@ def run_experiment():
     with open(os.path.join(WEBSITE_DIR, 'model_weights.json'), 'w') as f:
         json.dump(ann_payload, f, indent=2)
 
-    # SVM Support Vectors & Dual Coefficients for Web Inference (RBF kernel)
-    svm_sv = best_svm.support_vectors_.tolist()
-    svm_dual_coef = best_svm.dual_coef_[0].tolist()
-    svm_intercept = float(best_svm.intercept_[0])
-    svm_gamma = float(best_svm._gamma)
-    platt_a = round(-float(best_svm.probA_[0]), 8)
-    platt_b = round(float(best_svm.probB_[0]), 8)
-
-    # 5. Generate Dual-Model Client Bundle (ANN + SVM Only)
+    # 5. Generate Pure ANN Client Bundle
     web_models_bundle = {
         'models': [
             {
@@ -342,26 +304,6 @@ def run_experiment():
                 'biases': mlp_biases,
                 'expected_value': expected_val_mlp,
                 'shap_importance': ann_shap_pct
-            },
-            {
-                'id': 'svm',
-                'name': 'Support Vector Machine (SVM)',
-                'badge': 'RBF Kernel (Calibrated)',
-                'accuracy': float(df_results.loc[df_results['Model']=='Support Vector Machine', 'Accuracy'].values[0]),
-                'roc_auc': float(df_results.loc[df_results['Model']=='Support Vector Machine', 'ROC-AUC'].values[0]),
-                'f1': float(df_results.loc[df_results['Model']=='Support Vector Machine', 'F1-Score'].values[0]),
-                'recall': float(df_results.loc[df_results['Model']=='Support Vector Machine', 'Recall (Sensitivity)'].values[0]),
-                'precision': float(df_results.loc[df_results['Model']=='Support Vector Machine', 'Precision'].values[0]),
-                'specificity': float(df_results.loc[df_results['Model']=='Support Vector Machine', 'Specificity'].values[0]),
-                'brier': float(df_results.loc[df_results['Model']=='Support Vector Machine', 'Brier Score'].values[0]),
-                'type': 'svm_rbf',
-                'gamma': svm_gamma,
-                'intercept': svm_intercept,
-                'platt_a': platt_a,
-                'platt_b': platt_b,
-                'support_vectors': svm_sv,
-                'dual_coef': svm_dual_coef,
-                'shap_importance': svm_shap_pct
             }
         ],
         'metadata': {
@@ -373,13 +315,13 @@ def run_experiment():
         }
     }
     
-    js_content = "/* Inside Diabetes — Multi-Model Client-Side Engine (Self-Contained: ANN & SVM) */\n"
+    js_content = "/* Inside Diabetes — Client-Side Artificial Neural Network Engine (Pure ANN) */\n"
     js_content += f"window.ALL_MODELS_DATA = {json.dumps(web_models_bundle, indent=2)};\n"
     
     bundle_js_path = os.path.join(WEBSITE_DIR, 'models_bundle.js')
     with open(bundle_js_path, 'w', encoding='utf-8') as f:
         f.write(js_content)
-    print(f"Generated offline-capable JS model bundle (ANN + SVM): {bundle_js_path}")
+    print(f"Generated offline-capable JS model bundle (Pure ANN): {bundle_js_path}")
 
     return df_results, optimal_thresholds
 
