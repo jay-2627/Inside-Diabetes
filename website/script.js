@@ -1740,46 +1740,7 @@ function forwardPassANN(zInput, weightsOverride, biasesOverride) {
   return { prob, logit, h1, h2 };
 }
 
-// Recursive Tree Traversal supporting both XGBoost (<) and Scikit-Learn (<=) split semantics
-function traverseTreeBundle(node, vec, isXGBoost = false) {
-  if (node.v !== undefined && (!node.l || !node.r)) return node.v;
-  if (!node.l && !node.r) return node.v !== undefined ? node.v : (node.ev !== undefined ? node.ev : 0.5);
-  const val = vec[node.f];
-  const goLeft = isXGBoost ? (val < node.t) : (val <= node.t);
-  return traverseTreeBundle(goLeft ? node.l : node.r, vec, isXGBoost);
-}
-
-// TreeSHAP-style path-dependent feature attributions for tree models
-function computeTreeSHAP(trees, vector, isXGBoost = false) {
-  const rawAttributions = new Array(8).fill(0);
-  if (!trees || !trees.length) return rawAttributions;
-
-  for (let t = 0; t < trees.length; t++) {
-    let curr = trees[t];
-    while (curr && curr.l && curr.r) {
-      const feat = curr.f;
-      const thresh = curr.t;
-      const val = vector[feat];
-      const goLeft = isXGBoost ? (val < thresh) : (val <= thresh);
-      const nextNode = goLeft ? curr.l : curr.r;
-
-      const currVal = curr.ev !== undefined ? curr.ev : (curr.v !== undefined ? curr.v : 0);
-      const nextVal = nextNode.v !== undefined ? nextNode.v : (nextNode.ev !== undefined ? nextNode.ev : 0);
-      const delta = nextVal - currVal;
-      rawAttributions[feat] += delta;
-      curr = nextNode;
-    }
-  }
-
-  if (!isXGBoost) {
-    for (let i = 0; i < 8; i++) {
-      rawAttributions[i] /= trees.length;
-    }
-  }
-  return rawAttributions;
-}
-
-// Universal Model Evaluator across all 4 Architectures
+// Universal Model Evaluator across Verified Dual-Model Architectures (ANN & SVM)
 function evaluateSingleModel(modelId, rawFeatures) {
   const bundle = window.ALL_MODELS_DATA;
   const meta = bundle ? bundle.metadata : MODEL_DATA;
@@ -1805,25 +1766,7 @@ function evaluateSingleModel(modelId, rawFeatures) {
 
   const model = bundle.models.find(m => m.id === modelId) || bundle.models[0];
 
-  if (model.type === 'xgboost_tree') {
-    let margin = 0;
-    if (model.trees && model.trees.length > 0) {
-      for (let i = 0; i < model.trees.length; i++) {
-        margin += traverseTreeBundle(model.trees[i], imputed, true);
-      }
-    }
-    const prob = 1.0 / (1.0 + Math.exp(-margin));
-    return { probability: Math.max(0, Math.min(1, prob)), margin };
-  } else if (model.type === 'rf_tree') {
-    if (model.trees && model.trees.length > 0) {
-      let sum = 0;
-      for (let i = 0; i < model.trees.length; i++) {
-        sum += traverseTreeBundle(model.trees[i], imputed, false);
-      }
-      const prob = sum / model.trees.length;
-      return { probability: Math.max(0, Math.min(1, prob)) };
-    }
-  } else if (model.type === 'svm_rbf') {
+  if (model.type === 'svm_rbf') {
     let df = model.intercept;
     const gamma = model.gamma;
     for (let i = 0; i < model.support_vectors.length; i++) {
@@ -1848,7 +1791,7 @@ function evaluateSingleModel(modelId, rawFeatures) {
   return { probability: 0.5 };
 }
 
-// Phase 2 Fix: Model-Specific Explanations (TreeSHAP for Trees, Integrated Gradients for ANN, Kernel Perturbation for SVM)
+// Model-Specific Explanations (Integrated Gradients for ANN, Kernel Perturbation for SVM)
 function computeModelSpecificSHAP(activeModelId, rawFeatures, currentProb) {
   const meta = window.ALL_MODELS_DATA ? window.ALL_MODELS_DATA.metadata : MODEL_DATA;
   const featureNames = meta.feature_names;
@@ -1893,22 +1836,6 @@ function computeModelSpecificSHAP(activeModelId, rawFeatures, currentProb) {
       attributions,
       method: 'ANN Integrated Gradients',
       modelName: 'Artificial Neural Network'
-    };
-  } else if (activeModelId === 'xgboost' || activeModelId === 'rf') {
-    // TreeSHAP path-dependent attributions from the client tree ensemble
-    const bundle = window.ALL_MODELS_DATA;
-    const model = (bundle && bundle.models) ? bundle.models.find(m => m.id === activeModelId) : null;
-    const isXGB = activeModelId === 'xgboost';
-    const trees = model ? model.trees : [];
-    const rawAttributions = computeTreeSHAP(trees, cleanVector, isXGB);
-
-    const sumRaw = rawAttributions.reduce((a, b) => a + b, 0);
-    const attributions = rawAttributions.map(a => Math.abs(sumRaw) > 1e-6 ? (a / sumRaw) * deltaTotal : a);
-
-    return {
-      attributions,
-      method: isXGB ? 'XGBoost TreeSHAP' : 'Random Forest TreeSHAP',
-      modelName: isXGB ? 'XGBoost Classifier' : 'Random Forest Classifier'
     };
   } else {
     // SVM Decision Manifold Kernel Perturbation
@@ -1987,10 +1914,8 @@ const threshTradeoffNote      = document.getElementById('threshTradeoffNote');
 
 let currentThreshold = 0.50;
 const VALIDATION_OPTIMAL_THRESHOLDS = {
-  xgboost: 0.53,
-  rf: 0.49,
-  svm: 0.25,
-  ann: 0.25
+  ann: 0.25,
+  svm: 0.25
 };
 
 // Phase 4: Interactive Counterfactual Explorer DOM Elements
@@ -2158,7 +2083,7 @@ function runPredictionAndRender() {
   const allResults = runMultiModelComparison(vector);
   
   // Determine selected active model
-  const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+  const activeModelId = modelSelectControl ? modelSelectControl.value : 'ann';
   const activeModel = allResults.find(r => r.id === activeModelId) || allResults[0];
   
   const prob = activeModel ? activeModel.probability : 0.5;
@@ -2243,7 +2168,7 @@ function runPredictionAndRender() {
 
   // Update Active Model Label in Column 1
   if (activeModelLabel && activeModel) {
-    activeModelLabel.textContent = `${activeModel.name} ${activeModel.id === 'xgboost' ? '(Best Performing)' : ''}`;
+    activeModelLabel.textContent = `${activeModel.name} ${activeModel.id === 'ann' ? '(Primary)' : ''}`;
   }
 
   // Update Active Model 6-Cell Performance Grid
@@ -2327,7 +2252,7 @@ function initOrUpdateCounterfactual(originalVector) {
     cfHypotheticalVector[7] = originalVector[7]; // Age
   }
 
-  const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+  const activeModelId = modelSelectControl ? modelSelectControl.value : 'ann';
   const bundle = window.ALL_MODELS_DATA;
   const activeModel = bundle && bundle.models ? bundle.models.find(m => m.id === activeModelId) : null;
   const modelName = activeModel ? activeModel.name : 'Active Model';
@@ -2346,7 +2271,7 @@ function initOrUpdateCounterfactual(originalVector) {
 }
 
 function renderCounterfactualState(originalVector) {
-  const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+  const activeModelId = modelSelectControl ? modelSelectControl.value : 'ann';
   
   if (dispCfGlucose) dispCfGlucose.textContent = `${cfHypotheticalVector[1]} mg/dL`;
   if (dispCfBMI)     dispCfBMI.textContent     = `${parseFloat(cfHypotheticalVector[5]).toFixed(1)} kg/m²`;
@@ -2435,18 +2360,10 @@ function renderCounterfactualState(originalVector) {
     const glucDiff = cfHypotheticalVector[1] - originalVector[1];
     const bmiDiff  = cfHypotheticalVector[5] - originalVector[5];
 
-    if (activeModelId === 'xgboost') {
-      if (glucDiff < -15 || bmiDiff < -2) {
-        cfExplanationText.textContent = `XGBoost evaluates split thresholds at Glucose ≤ 128 mg/dL and BMI ≤ 30. Shifting below these cuts the sum of boosting tree margins, reducing probability to ${hypoPct}%.`;
-      } else {
-        cfExplanationText.textContent = `XGBoost evaluates inputs along 50 gradient-boosted regression trees. Current modifications produce a net margin shift of ${(hypoProb - origProb).toFixed(3)}.`;
-      }
-    } else if (activeModelId === 'ann') {
+    if (activeModelId === 'ann') {
       cfExplanationText.textContent = `The 8->32->16->1 Neural Network propagates the standardized hypothetical vector through its trained ReLU manifolds, yielding an output activation of ${hypoPct}%.`;
-    } else if (activeModelId === 'svm') {
-      cfExplanationText.textContent = `Support Vector Machine computes RBF geometric distances to support vectors. The hypothetical coordinates shift ${(origProb - hypoProb > 0 ? 'closer to the non-diabetic support vectors' : 'further into the diabetic decision margin')}.`;
     } else {
-      cfExplanationText.textContent = `Random Forest averages class predictions across decision trees. In this hypothetical vector, ${(hypoProb * 100).toFixed(0)}% of trees vote positive.`;
+      cfExplanationText.textContent = `Support Vector Machine computes RBF geometric distances to support vectors. The hypothetical coordinates shift ${(origProb - hypoProb > 0 ? 'closer to the non-diabetic support vectors' : 'further into the diabetic decision margin')}.`;
     }
   }
 }
@@ -2466,7 +2383,7 @@ document.querySelectorAll('.btn-thresh-preset').forEach(btn => {
     document.querySelectorAll('.btn-thresh-preset').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const val = btn.dataset.thresh;
-    const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+    const activeModelId = modelSelectControl ? modelSelectControl.value : 'ann';
 
     if (val === 'val-opt') {
       currentThreshold = VALIDATION_OPTIMAL_THRESHOLDS[activeModelId] || 0.50;
@@ -2523,7 +2440,7 @@ document.querySelectorAll('.btn-cf-preset').forEach(btn => {
       cfHypotheticalVector[2] = Math.max(60, orig[2] - 5);
     } else if (mode === 'recourse') {
       // Automatic minimal actionable boundary recourse to reach < 30% risk
-      const activeModelId = modelSelectControl ? modelSelectControl.value : 'xgboost';
+      const activeModelId = modelSelectControl ? modelSelectControl.value : 'ann';
       let bestVec = cfHypotheticalVector.slice();
       let bestP = evaluateSingleModel(activeModelId, bestVec).probability;
 
@@ -2574,7 +2491,7 @@ if (modelSelectControl) {
 if (btnToggleComparison && comparisonDrawer) {
   btnToggleComparison.addEventListener('click', () => {
     const isOpen = comparisonDrawer.classList.toggle('open');
-    btnToggleComparison.textContent = isOpen ? 'Hide Comparison ▴' : 'Compare 4 Models ▾';
+    btnToggleComparison.textContent = isOpen ? 'Hide Comparison ▴' : 'Compare Models (ANN vs SVM) ▾';
   });
 }
 

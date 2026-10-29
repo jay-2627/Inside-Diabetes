@@ -407,7 +407,7 @@
               <div class="hml-row">
                 <span class="hml-dot"></span>
                 <span class="hml-key">Model Used:</span>
-                <strong class="hml-val" id="activeModelLabel">XGBoost (Best Performing)</strong>
+                <strong class="hml-val" id="activeModelLabel">Artificial Neural Network (ANN)</strong>
               </div>
             </div>
 
@@ -569,9 +569,7 @@
               <!-- Model Selector Dropdown Pill -->
               <div class="model-selector-pill" id="modelSelectorDropdown">
                 <select id="modelSelectControl" class="hud-model-select" aria-label="Select Active Prediction Model">
-                  <option value="xgboost" selected>XGBoost Model</option>
-                  <option value="rf">Random Forest</option>
-                  <option value="ann">Neural Net (ANN)</option>
+                  <option value="ann" selected>Neural Net (ANN)</option>
                   <option value="svm">Support Vector (SVM)</option>
                 </select>
                 <span class="badge-calibrated">🟢 Calibrated ℹ️</span>
@@ -645,7 +643,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>
                 <h3 id="shapCardHeading">SHAP Feature Contribution</h3>
               </div>
-              <span class="shap-active-model-tag" id="shapModelTag">XGBoost</span>
+              <span class="shap-active-model-tag" id="shapModelTag">Neural Net (ANN)</span>
             </div>
             <p class="shap-disclaimer-sub">Directional associations with risk relative to cohort baseline. Statistical dependencies, not causal medical effects.</p>
 
@@ -662,7 +660,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                 <h3>Model Performance (Test Set)</h3>
               </div>
-              <button type="button" class="btn-toggle-comparison" id="btnToggleComparison">Compare 4 Models ▾</button>
+              <button type="button" class="btn-toggle-comparison" id="btnToggleComparison">Compare Models (ANN vs SVM) ▾</button>
             </div>
 
             <!-- Key Test-Set Metrics 6-Cell Grid -->
@@ -670,32 +668,32 @@
               <div class="metric-cell">
                 <span class="mc-icon">🎯</span>
                 <span class="mc-label">Accuracy</span>
-                <strong class="mc-val" id="perfAcc">76.0%</strong>
+                <strong class="mc-val" id="perfAcc">73.4%</strong>
               </div>
               <div class="metric-cell">
                 <span class="mc-icon">⚡</span>
                 <span class="mc-label">F1-Score</span>
-                <strong class="mc-val" id="perfF1">69.9%</strong>
+                <strong class="mc-val" id="perfF1">58.6%</strong>
               </div>
               <div class="metric-cell">
                 <span class="mc-icon">⚖️</span>
                 <span class="mc-label">Precision</span>
-                <strong class="mc-val" id="perfPrec">62.3%</strong>
+                <strong class="mc-val" id="perfPrec">64.4%</strong>
               </div>
               <div class="metric-cell">
                 <span class="mc-icon">📈</span>
                 <span class="mc-label">ROC-AUC</span>
-                <strong class="mc-val" id="perfAuc">0.825</strong>
+                <strong class="mc-val" id="perfAuc">0.819</strong>
               </div>
               <div class="metric-cell">
                 <span class="mc-icon">🩺</span>
                 <span class="mc-label">Recall</span>
-                <strong class="mc-val" id="perfRec">79.6%</strong>
+                <strong class="mc-val" id="perfRec">53.7%</strong>
               </div>
               <div class="metric-cell">
                 <span class="mc-icon">📉</span>
                 <span class="mc-label">Brier Score</span>
-                <strong class="mc-val" id="perfBrier">0.166</strong>
+                <strong class="mc-val" id="perfBrier">0.167</strong>
               </div>
             </div>
 
@@ -716,8 +714,8 @@
               </table>
               <div class="best-model-panel" style="margin-top:0.75rem;">
                 <span class="bmp-label">🏆 Selected Best:</span>
-                <strong id="bestModelName">XGBoost Classifier</strong>
-                <span class="bmp-acc" id="bestModelAccuracy">76.0%</span>
+                <strong id="bestModelName">Artificial Neural Network (ANN)</strong>
+                <span class="bmp-acc" id="bestModelAccuracy">73.4%</span>
               </div>
             </div>
 
@@ -736,7 +734,7 @@
             <span class="cf-pill-badge">RESEARCH FEATURE &bull; WHAT-IF SIMULATION</span>
             <h3>Interactive Counterfactual Diabetes Risk Explorer</h3>
             <p class="cf-desc">
-              Explore hypothetical biomarker scenarios for the active model (<span id="cfActiveModelBadge">XGBoost</span>). Simulate how modifying lifestyle biomarkers shifts predicted risk, while respecting immutable demographic boundaries.
+              Explore hypothetical biomarker scenarios for the active model (<span id="cfActiveModelBadge">Neural Net (ANN)</span>). Simulate how modifying lifestyle biomarkers shifts predicted risk, while respecting immutable demographic boundaries.
             </p>
           </div>
           <div class="cf-actions-top">
@@ -818,7 +816,7 @@
 
             <!-- Right: Impact & Comparison Dashboard -->
             <div class="cf-col cf-results-col">
-              <h4 class="cf-subheading">2. Predicted Impact Comparison (<span id="cfActiveModelName">XGBoost</span>)</h4>
+              <h4 class="cf-subheading">2. Predicted Impact Comparison (<span id="cfActiveModelName">Neural Net (ANN)</span>)</h4>
 
               <div class="cf-comparison-cards">
                 <div class="cfc-card cfc-original">

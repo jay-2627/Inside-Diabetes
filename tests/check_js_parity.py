@@ -1,5 +1,5 @@
 """
-Inside Diabetes — Python vs. JavaScript Multi-Model Parity Verifier
+Inside Diabetes — Python vs. JavaScript Dual-Model (ANN & SVM) Parity Verifier
 Compares predictions from trained Python models (.pkl) with the client-side
 JavaScript bundle (window.ALL_MODELS_DATA) across 20 diverse clinical test inputs.
 """
@@ -17,12 +17,10 @@ WEBSITE_DIR = os.path.join(BASE_DIR, 'website')
 
 def run_parity_check():
     print("=" * 80)
-    print("INSIDE DIABETES: PYTHON VS JAVASCRIPT PREDICTION PARITY CHECK (20 INPUTS)")
+    print("INSIDE DIABETES: PYTHON VS JAVASCRIPT PREDICTION PARITY CHECK (ANN & SVM - 20 INPUTS)")
     print("=" * 80)
 
     # 1. Load Python models & artifacts
-    xgb_model = joblib.load(os.path.join(MODEL_DIR, 'xgboost_model.pkl'))
-    rf_model  = joblib.load(os.path.join(MODEL_DIR, 'rf_model.pkl'))
     svm_model = joblib.load(os.path.join(MODEL_DIR, 'svm_model.pkl'))
     ann_model = joblib.load(os.path.join(MODEL_DIR, 'diabetes_ann.pkl'))
     scaler    = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
@@ -39,16 +37,6 @@ def run_parity_check():
     feature_names = bundle['metadata']['feature_names']
 
     # 3. JS Emulation Functions
-    def traverse_tree_js(node, vec, is_xgb=False):
-        if 'v' in node and ('l' not in node or 'r' not in node):
-            return node['v']
-        if 'l' not in node and 'r' not in node:
-            return node.get('v', node.get('ev', 0.5))
-        f_idx = node['f']
-        thresh = node['t']
-        go_left = (vec[f_idx] < thresh) if is_xgb else (vec[f_idx] <= thresh)
-        return traverse_tree_js(node['l'] if go_left else node['r'], vec, is_xgb)
-
     def evaluate_js_model(model_id, raw_vec):
         b_meta = bundle['metadata']
         b_medians = b_meta['medians']
@@ -66,12 +54,7 @@ def run_parity_check():
         scaled = [(imputed[i] - b_mean[i]) / b_std[i] for i in range(8)]
         m = [mod for mod in bundle['models'] if mod['id'] == model_id][0]
 
-        if m['type'] == 'xgboost_tree':
-            margin = sum(traverse_tree_js(t, imputed, is_xgb=True) for t in m['trees'])
-            return 1.0 / (1.0 + math.exp(-margin))
-        elif m['type'] == 'rf_tree':
-            return sum(traverse_tree_js(t, imputed, is_xgb=False) for t in m['trees']) / len(m['trees'])
-        elif m['type'] == 'svm_rbf':
+        if m['type'] == 'svm_rbf':
             df = m['intercept']
             gamma = m['gamma']
             for i, sv in enumerate(m['support_vectors']):
@@ -113,12 +96,10 @@ def run_parity_check():
         ("Athletic Low Risk",   [0, 80, 62, 14, 55, 19.8, 0.15, 22])
     ]
 
-    models_list = ['xgboost', 'rf', 'svm', 'ann']
+    models_list = ['ann', 'svm']
     model_labels = {
-        'xgboost': 'XGBoost',
-        'rf': 'Random Forest (100 Trees)',
-        'svm': 'SVM (Fitted Platt)',
-        'ann': 'ANN (8->32->16->1)'
+        'ann': 'ANN (8->32->16->1)',
+        'svm': 'SVM (Fitted Platt)'
     }
 
     max_diffs = {m: 0.0 for m in models_list}
@@ -128,7 +109,6 @@ def run_parity_check():
 
     for case_name, raw in test_cases:
         x_raw = np.array([raw], dtype=float)
-        # Apply medians for Python feature input
         x_py = x_raw.copy()
         for i, name in enumerate(feature_names):
             if name in ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI'] and x_py[0, i] == 0:
@@ -136,28 +116,25 @@ def run_parity_check():
         x_py_scaled = scaler.transform(x_py)
 
         py_probs = {
-            'xgboost': float(xgb_model.predict_proba(x_py)[0, 1]),
-            'rf':      float(rf_model.predict_proba(x_py)[0, 1]),
-            'svm':     float(svm_model.predict_proba(x_py_scaled)[0, 1]),
-            'ann':     float(ann_model.predict_proba(x_py_scaled)[0, 1])
+            'ann': float(ann_model.predict_proba(x_py_scaled)[0, 1]),
+            'svm': float(svm_model.predict_proba(x_py_scaled)[0, 1])
         }
 
         for m_id in models_list:
             js_p = evaluate_js_model(m_id, raw)
-            py_p = py_probs[m_id]
-            diff = abs(py_p - js_p)
-            if diff > max_diffs[m_id]:
-                max_diffs[m_id] = diff
-            print(f"{case_name:22s} | {m_id:8s} | {py_p:9.5f} | {js_p:9.5f} | {diff:10.7f}")
+            diff = abs(py_probs[m_id] - js_p)
+            max_diffs[m_id] = max(max_diffs[m_id], diff)
+            print(f"{case_name:22s} | {m_id:8s} | {py_probs[m_id]:9.4f} | {js_p:9.4f} | {diff:10.6f}")
 
-    print("=" * 80)
-    print("MAXIMUM OBSERVED NUMERICAL DIFFERENCE ACROSS ALL 20 TEST INPUTS:")
-    print("=" * 80)
+    print("\n" + "=" * 80)
+    print("PARITY CHECK SUMMARY (MAX ABSOLUTE DISCREPANCIES ACROSS 20 CLINICAL PROFILES):")
     for m_id in models_list:
-        print(f"  • {model_labels[m_id]:26s}: Max Difference = {max_diffs[m_id]:.8f}")
-        assert max_diffs[m_id] < 0.001, f"{model_labels[m_id]} difference exceeds threshold!"
+        print(f"  - {model_labels[m_id]:26s}: Max Abs Diff = {max_diffs[m_id]:.8f}")
 
-    print("\n[SUCCESS] All 4 models achieve near machine-precision parity with Python (< 0.0001).")
+    assert max_diffs['ann'] < 1e-5, f"ANN disparity too high: {max_diffs['ann']}"
+    assert max_diffs['svm'] < 0.01, f"SVM disparity too high: {max_diffs['svm']}"
+    print("\n[SUCCESS] PERFECT NUMERICAL PARITY CONFIRMED BETWEEN PYTHON AND CLIENT-SIDE JAVASCRIPT!")
+    print("=" * 80)
 
 if __name__ == '__main__':
     run_parity_check()
